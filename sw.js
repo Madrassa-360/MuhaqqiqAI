@@ -1,20 +1,12 @@
 /* ════════════════════════════════════════════════════════════
-   Muhaqqiq AI — Service Worker
+   Muhaqqiq AI — Service Worker (v4.0 Mobile Force Update)
    Strategy:
-   - HTML (navigation): NETWORK-FIRST. Every time the user opens
-     the app while online, the latest index.html is fetched from
-     the server directly — so even a one-word edit shows up on
-     the very next load, with no manual cache-busting needed.
-     Falls back to the cached copy only when offline.
-   - Everything else (manifest, icons, fonts): STALE-WHILE-
-     REVALIDATE — instant load from cache, silently refreshed
-     in the background for next time.
-   - skipWaiting() + clients.claim() so a new version activates
-     itself immediately; the page listens for 'controllerchange'
-     and reloads once, automatically.
+   - HTML (navigation): NETWORK-FIRST with cache-control no-cache
+   - Everything else: Network-First fallback to Stale-While-Revalidate
+   - skipWaiting() + clients.claim() for instant update on all devices
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'muhaqqiq-ai-cache-v3.0-force-update';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v4.0-mobile-force';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -30,16 +22,14 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(CORE_ASSETS))
-      .catch(() => {}) // don't block install if a core asset is briefly unreachable
+      .catch(() => {})
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      ))
+      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -54,10 +44,12 @@ self.addEventListener('fetch', (event) => {
 
   if (isHTML) {
     event.respondWith(
-      fetch(req, { cache: 'no-store' })
+      fetch(req, { cache: 'no-cache', headers: { 'Cache-Control': 'no-cache, no-store' } })
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
+          }
           return res;
         })
         .catch(() =>
@@ -67,20 +59,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-while-revalidate for everything else
+  // Network-First for assets
   event.respondWith(
-    caches.match(req).then((cached) => {
-      const network = fetch(req)
-        .then((res) => {
-          if (res && res.status === 200) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(req)
+      .then((res) => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
+        }
+        return res;
+      })
+      .catch(() => caches.match(req))
   );
 });
 
