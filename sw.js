@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════
-   Al-Turath NotebookLM Hub — Service Worker
+   Muhaqqiq AI — Service Worker
    Strategy:
    - HTML (navigation): NETWORK-FIRST. Every time the user opens
      the app while online, the latest index.html is fetched from
@@ -14,7 +14,7 @@
      and reloads once, automatically.
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'alturath-hub-cache-v2';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v1';
 const CORE_ASSETS = [
   './',
   './index.html',

@@ -1,7 +1,7 @@
 {
-  "name": "Al-Turath NotebookLMs Hub",
-  "short_name": "Al-Turath Hub",
-  "description": "Digital Islamic Knowledge Platform — Al-Turath NotebookLMs Hub by Dr. Sajid Mahmood, Hazara University",
+  "name": "Muhaqqiq AI",
+  "short_name": "Muhaqqiq AI",
+  "description": "Muhaqqiq AI - Accessible, AI-powered research ecosystem for Islamic scholars and students of knowledge by Muhammad Talha Bin Farid",
   "start_url": "./index.html",
   "scope": "./",
   "id": "./index.html",
