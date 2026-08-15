@@ -14,7 +14,7 @@
      and reloads once, automatically.
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'muhaqqiq-ai-cache-v2.0-force-update';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v3.0-force-update';
 const CORE_ASSETS = [
   './',
   './index.html',

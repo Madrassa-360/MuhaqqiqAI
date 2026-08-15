@@ -3678,39 +3678,33 @@ const jp=k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const gv=id=>(document.getElementById(id)||{}).value?.trim()||'';
 
+function isCardVisible(n){
+  if(!n)return false;
+  if(n.visible===false || n.hidden===true || n.status==='Hidden')return false;
+  return true;
+}
+
 function boot(){
-  S.nbs=jp(K.NB)||defNBs();
+  const savedNbs=jp(K.NB);
+  S.nbs=(savedNbs && Array.isArray(savedNbs) && savedNbs.length>0) ? savedNbs : defNBs();
   S.cats=jp(K.CATS)||[...DEF_CATS];
   S.mainCats=jp(K.MAINCATS)||defMainCats();
-  // One-time baseline migration: some browsers carry stale cached state from
-  // earlier builds (e.g. an emptied notebooks array from a prior "delete all",
-  // the old 18-category structure, or an old app name saved before a rename).
-  // Since an empty array [] is truthy in JS, "jp(K.NB)||defNBs()" above does
-  // NOT fall back to defaults in that case, and a saved appName in settings
-  // would likewise keep overriding a freshly renamed default forever. This
-  // runs once per browser to force notebooks, main categories, AND the app
-  // name back to the correct embedded baseline whenever that hasn't happened
-  // yet, then never runs again - so anything the user customizes afterwards
-  // (including renaming the app again via Settings) is respected normally.
-  const BASELINE_VERSION='8';
-  const needsMigration=localStorage.getItem(K.MAINCATS+'_v')!==BASELINE_VERSION;
+
+  const BASELINE_VERSION='muhaqqiq_v9';
+  const needsMigration=!localStorage.getItem(K.MAINCATS+'_v');
   if(needsMigration){
-    S.nbs=defNBs();
+    if(!savedNbs || savedNbs.length===0){
+      S.nbs=defNBs();
+      localStorage.setItem(K.NB,JSON.stringify(S.nbs));
+    }
     S.mainCats=defMainCats();
-    localStorage.setItem(K.NB,JSON.stringify(S.nbs));
     localStorage.setItem(K.MAINCATS,JSON.stringify(S.mainCats));
     localStorage.setItem(K.MAINCATS+'_v',BASELINE_VERSION);
   }
   S.favs=jp(K.FAVS)||[];
   S.notifs=jp(K.NOTIF)||[];
-  S.cu=jp(K.CU)||null;
+  S.cu=jp(K.CU)||jp('at_cu')||null;
   const st=jp(K.SETT);if(st)S.sett={...S.sett,...st};
-  if(needsMigration){
-    // Re-apply the current embedded default app name/theme even though a
-    // stale saved settings object was just merged in above.
-    S.sett.appName="Muhaqqiq AI";
-    localStorage.setItem(K.SETT,JSON.stringify(S.sett));
-  }
   applyTheme(S.sett.theme,false);
   syncName();checkAuth();renderPub();buildThemes();updateGlobalBookStats();loadSavedFonts();
   document.addEventListener('keydown',e=>{
@@ -4318,7 +4312,7 @@ function renderPub(){
 
 /* ── GLOBAL BOOK STATS ── */
 function calcLibraryStats(){
-  const nbs=S.nbs.filter(n=>n.visible);
+  const nbs=S.nbs.filter(isCardVisible);
   let totalBooks=0,totalVols=0,totalAuthors=new Set(),totalEditors=new Set();
   nbs.forEach(n=>{
     const bks=n.books||[];
@@ -4345,7 +4339,7 @@ function updateGlobalBookStats(){
   if(!el)return;
 
   // Count Arabic vs Urdu books across all visible notebooks
-  const visNBs=(S.nbs||[]).filter(n=>n.visible!==false);
+  const visNBs=(S.nbs||[]).filter(isCardVisible);
   let arCount=0, urCount=0;
   visNBs.forEach(n=>{
     const defLang=n.titleLang==='ur'?'ur':'ar';
@@ -4387,7 +4381,7 @@ function updateGlobalBookStats(){
     </div>`).join('');
 }
 function buildPills(){
-  const vis=S.nbs.filter(n=>n.visible);
+  const vis=S.nbs.filter(isCardVisible);
   const cc={};vis.forEach(n=>{cc[n.cat]=(cc[n.cat]||0)+1;});
   const cats=[...new Set(vis.map(n=>n.cat))];
   const el=document.getElementById('catPills');
@@ -4405,7 +4399,7 @@ function buildPills(){
 function setFilt(btn,cat){S.filt=cat;document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAll();}
 function getFilt(){
   const q=gv('srchIn').toLowerCase();
-  let nbs=S.nbs.filter(n=>n.visible).sort((a,b)=>a.order-b.order);
+  let nbs=S.nbs.filter(isCardVisible).sort((a,b)=>a.order-b.order);
   if(S.filt!=='all')nbs=nbs.filter(n=>n.cat===S.filt);
   if(q)nbs=nbs.filter(n=>n.title.toLowerCase().includes(q)||n.cat.toLowerCase().includes(q)||(n.desc||'').toLowerCase().includes(q));
   return nbs;
@@ -4430,13 +4424,13 @@ function renderAll(){
   animCards();
 }
 function renderRec(){
-  const nbs=S.nbs.filter(n=>n.visible).sort((a,b)=>b.added-a.added).slice(0,6);
+  const nbs=S.nbs.filter(isCardVisible).sort((a,b)=>b.added-a.added).slice(0,6);
   document.getElementById('recBadge').textContent=nbs.length;
   document.getElementById('recCards').innerHTML=nbs.length?nbs.map(n=>cardH(n,true)).join(''):'<div class="empty"><div class="ei">📭</div><div class="et">No notebooks yet</div></div>';
   animCards();
 }
 function renderFav(){
-  const nbs=S.nbs.filter(n=>n.visible&&S.favs.includes(n.id));
+  const nbs=S.nbs.filter(n=>isCardVisible(n)&&S.favs.includes(n.id));
   document.getElementById('favBadge').textContent=nbs.length;
   document.getElementById('favCards').innerHTML=nbs.length?nbs.map(n=>cardH(n)).join(''):'<div class="empty"><div class="ei">⭐</div><div class="et">No favorites yet</div><div class="es">Click ☆ on any card</div></div>';
 }
@@ -5789,14 +5783,11 @@ const CAT_MAP = {
 };
 
 function getMainCatNBs(mc){
-  // Exact-match only (case-insensitive) - avoids one main category's notebooks
-  // "bleeding" into another just because both names share a common word
-  // (e.g. two categories both starting with "Islamic").
   const mapped = CAT_MAP[mc.name] || [];
   const allowed = new Set(mapped.map(c=>c.toLowerCase()));
   allowed.add(mc.name.toLowerCase());
   if(mc.ar) allowed.add(mc.ar.toLowerCase());
-  return S.nbs.filter(n=>n.visible && n.cat && allowed.has(n.cat.toLowerCase())).sort((a,b)=>(a.order||0)-(b.order||0));
+  return S.nbs.filter(n=>isCardVisible(n) && n.cat && allowed.has(n.cat.toLowerCase())).sort((a,b)=>(a.order||0)-(b.order||0));
 }
 
 /* ══════════════════════════════════════
