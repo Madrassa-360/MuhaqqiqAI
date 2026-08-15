@@ -109,5 +109,5 @@ git push origin main
 
 Developed for **Madrassa 360** by **Muhammad Talha Bin Farid**.
 
-- **Ecosystem:** Al-Turath NotebookLM Hub
+- **Ecosystem:** Muhaqqiq AI NotebookLM Hub
 - **License:** Open Source for Educational and Research Purposes.
