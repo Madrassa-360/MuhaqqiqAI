@@ -1,37 +1,56 @@
-# Al-Turath NotebookLM Hub — GitHub Pages پر PWA Deploy کرنے کی مکمل ہدایات
+# Muhaqqiq AI — GitHub Pages Deployment & Management Guide
 
-## 1. فائلیں تیار
-اس فولڈر میں یہ فائلیں دی گئی ہیں:
+## 1. Project Overview & Repository Details
+- **GitHub Repository:** [https://github.com/Madrassa-360/MuhaqqiqAI](https://github.com/Madrassa-360/MuhaqqiqAI)
+- **Live Application Link:** [https://Madrassa-360.github.io/MuhaqqiqAI/](https://Madrassa-360.github.io/MuhaqqiqAI/)
+- **Admin & Resource Manager:** [https://Madrassa-360.github.io/MuhaqqiqAI/admin_manager.html](https://Madrassa-360.github.io/MuhaqqiqAI/admin_manager.html)
 
-| فائل | مقصد |
+---
+
+## 2. Project File Structure & Components
+
+| File Name | Description & Purpose |
 |---|---|
-| `index.html` | مکمل ایپ (پہلے سے **`index.html`** کے نام سے ہی تیار ہے) |
-| `manifest.json` | PWA Manifest (Install کے لیے ضروری) |
-| `sw.js` | Service Worker (Auto-Update اور Offline کے لیے) |
-| `icon-192.png` | ایپ آئیکن (192×192) |
-| `icon-512.png` | ایپ آئیکن (512×512) |
-| `maskable-icon-512.png` | Android کے لیے Maskable آئیکن |
-| `apple-touch-icon.png` | iPhone/iPad Home Screen آئیکن |
-| `favicon-32.png` | Browser Tab آئیکن |
+| `index.html` | Primary web application (Muhaqqiq AI Ecosystem interface, books, preview modals, search) |
+| `admin_manager.html` | Central Admin Portal (Edit cards, update button links, manage users, assign passwords, ban/unban, JSON backup) |
+| `manifest.json` | PWA Web App Manifest (for installation on Mobile/Desktop Home Screen) |
+| `sw.js` | Service Worker (Auto-update cache strategy, offline mode support) |
+| `icon-192.png` | App Icon (192×192 pixels) |
+| `icon-512.png` | App Icon (512×512 pixels) |
+| `maskable-icon-512.png` | Android Maskable App Icon |
+| `apple-touch-icon.png` | iPhone / iPad Home Screen Icon |
+| `favicon-32.png` | Browser Tab Icon |
+| `DEPLOY_INSTRUCTIONS.md` | Deployment and maintenance documentation |
 
-## 2. GitHub Pages پر اپلوڈ کیسے کریں
+---
 
-1. اپنے GitHub Repository میں یہ **تمام 8 فائلیں ایک ہی فولڈر (root یا `/docs`) میں** اپلوڈ کریں۔
-2. `index.html` پہلے سے اسی نام سے تیار ہے، دوبارہ rename کرنے کی ضرورت نہیں۔
-3. Repository کی Settings → Pages میں جا کر Publish کریں۔
-4. تیار! اب آپ کا Link (مثلاً `https://username.github.io/repo-name/`) براہِ راست ایپ کھولے گا۔
+## 3. How to Deploy & Activate GitHub Pages
 
-## 3. نئی تبدیلی (Update) کیسے بھیجیں
-- بس `index.html` میں تبدیلی کر کے دوبارہ GitHub پر Upload/Commit کر دیں — کسی اور فائل کو چھیڑنے کی ضرورت نہیں۔
-- Service Worker کی حکمتِ عملی یوں ہے کہ ہر بار جب کوئی صارف انٹرنیٹ کے ساتھ ایپ کھولے تو `index.html` سیدھا سرور سے (کیشے کو نظرانداز کر کے) منگوایا جاتا ہے، اس لیے ایک لفظ کی تبدیلی بھی اگلی بار ایپ کھلتے ہی نظر آ جائے گی۔ نئی Version خود بخود Activate ہو کر ایپ کو ایک بار Refresh کر دیتی ہے — کوئی Manual Cache صاف کرنے کی ضرورت نہیں۔
-- یہ رویہ پہلے سے کوڈ میں موجود تھا اور اسے دوبارہ چیک کر لیا گیا ہے؛ اضافی طور پر Service Worker کی اندرونی Cache ID بھی بدل دی گئی ہے تاکہ اگر پہلے کوئی پرانا Version کہیں Install ہو چکا ہو تو وہ بھی صاف ہو کر نیا Version لے۔
+1. Navigate to repository settings:  
+   👉 `https://github.com/Madrassa-360/MuhaqqiqAI/settings/pages`
+2. Under **Build and deployment** → **Source**:
+   - Select **Deploy from a branch**.
+   - **Branch:** Choose `main`.
+   - **Folder:** Select `/(root)`.
+3. Click **Save**.
+4. GitHub Pages will build your application within 60 seconds.
 
-## 4. Install کیسے ہوگا (اہم — براہِ راست پڑھیں)
-یہ ایک **PWA (ویب ایپ)** ہے، عام `.exe` یا `.apk` فائل نہیں — اس لیے "لنک پہ کلک کریں اور فائل ڈاؤن لوڈ ہونا شروع ہو جائے" والا انداز تکنیکی طور پر ممکن نہیں، کیونکہ براؤزر سیکیورٹی وجوہات کی بنا پر کسی ویب لنک کو براہِ راست فائل ڈاؤن لوڈ/انسٹال شروع کرنے کی اجازت نہیں دیتا۔ البتہ جو قریب ترین اور بہترین متبادل ممکن تھا وہ اب لگا دیا گیا ہے:
+---
 
-- **Android/Desktop (Chrome, Edge):** لنک کھلنے کے تقریباً 1 سیکنڈ بعد ہی براؤزر خود بخود "Install app?" کا Native ڈائیلاگ دکھائے گا (پہلے صرف ایک بٹن ظاہر ہوتا تھا جس پر صارف کو خود کلک کرنا پڑتا تھا — اب یہ خودکار ہے)۔ صارف صرف "Install" پر کلک کرے گا اور ایپ کا آئیکن فوراً Desktop/Home Screen پر آ جائے گا۔ اگر کسی وجہ سے یہ خودکار ڈائیلاگ نہ دکھے تو ہیڈر میں موجود Install بٹن بطور متبادل موجود رہے گا۔
-- **iPhone/iPad (Safari):** یہاں Apple نے خود یہ پابندی لگا رکھی ہے کہ کوئی بھی ویب سائٹ خودکار طور پر Install نہیں کر سکتی — صرف صارف خود "Share ← Add to Home Screen" کر سکتا ہے۔ یہ Apple کی Operating System پالیسی ہے، کسی کوڈ سے اسے تبدیل نہیں کیا جا سکتا (نہ اس ایپ میں، نہ کسی اور ویب ایپ میں)۔ اس لیے iPhone پر ایپ خود صارف کو یہ پیغام دکھاتی رہے گی۔
-- Install ہونے کے بعد (Android/Desktop یا iPhone دونوں صورتوں میں) ایپ کا آئیکن عام ایپ کی طرح Home Screen/Desktop پر آ جاتا ہے اور مکمل PWA کی طرح چلتی ہے۔
+## 4. Pushing Future Updates to GitHub
 
-## 5. اہم نوٹ
-- یہ HTML فائل `file://` (کمپیوٹر پر براہ راست ڈبل کلک کر کے) کھولنے پر بھی بغیر کسی خرابی کے پہلے کی طرح چلتی رہے گی — صرف PWA Install/Auto-Update کی سہولت صرف اس وقت فعال ہوگی جب ایپ کسی ویب سرور (جیسے GitHub Pages) کے ذریعے `https://` لنک سے کھولی جائے، کیونکہ یہ Browser کی Security Policy کا حصہ ہے۔
+Whenever you modify any code locally, run these terminal commands to automatically update your live site:
+
+```powershell
+git add .
+git commit -m "Update application features and data"
+git push origin main
+```
+
+---
+
+## 5. PWA Installation & Service Worker Auto-Update Behavior
+- **Automatic Updates:** When connected to the internet, `sw.js` fetches the latest version of `index.html` and `admin_manager.html` directly from the server, bypassing browser cache locks.
+- **Desktop/Android (Chrome/Edge):** Displays native "Install App" prompts for a standalone window experience.
+- **iOS Safari:** Use **Share → Add to Home Screen**.
+- **Offline Support:** LocalStorage data (`at_nb`, `at_users`, `at_pass`, etc.) and cached assets remain available offline.
