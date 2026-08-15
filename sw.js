@@ -14,10 +14,11 @@
      and reloads once, automatically.
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'muhaqqiq-ai-cache-v1';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v2.0-force-update';
 const CORE_ASSETS = [
   './',
   './index.html',
+  './admin_manager.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
