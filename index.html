@@ -3790,6 +3790,7 @@ function boot(){
   const st=jp(K.SETT);if(st)S.sett={...S.sett,...st};
   applyTheme(S.sett.theme,false);
   syncName();checkAuth();renderPub();buildThemes();updateGlobalBookStats();loadSavedFonts();
+  syncRemoteConfig();
   document.addEventListener('keydown',e=>{
     if(e.ctrlKey&&e.shiftKey&&e.key==='A'){e.preventDefault();openAdmin();}
     if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();const s=document.getElementById('srchIn');if(s){s.focus();s.select();}}
@@ -3798,6 +3799,48 @@ function boot(){
   });
   window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',scrollY>300);});
 }
+
+function syncRemoteConfig(force){
+  fetch('./app_config.json?v='+Date.now())
+    .then(r=>r.ok?r.json():null)
+    .then(data=>{
+      if(!data)return;
+      let sync=false;
+      if(Array.isArray(data.cards) && data.cards.length>0){
+        localStorage.setItem(K.NB,JSON.stringify(data.cards));
+        S.nbs=data.cards;
+        sync=true;
+      }
+      if(Array.isArray(data.users) && data.users.length>0){
+        localStorage.setItem(K.USERS,JSON.stringify(data.users));
+        sync=true;
+      }
+      if(Array.isArray(data.mainCats) && data.mainCats.length>0){
+        localStorage.setItem(K.MAINCATS,JSON.stringify(data.mainCats));
+        S.mainCats=data.mainCats;
+        sync=true;
+      }
+      if(sync||force){
+        if(typeof renderPub==='function')renderPub();
+        if(typeof updateGlobalBookStats==='function')updateGlobalBookStats();
+        if(typeof renderMainCats==='function')renderMainCats();
+        if(force&&typeof toast==='function')toast('✅ Latest app data & card visibility synchronized!');
+      }
+    })
+    .catch(()=>{});
+}
+
+window.forceUpdateApp=function(){
+  if(typeof toast==='function')toast('🔄 Purging device cache and fetching live server data…');
+  if('caches'in window){
+    caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
+  }
+  if('serviceWorker'in navigator){
+    navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
+  }
+  syncRemoteConfig(true);
+  setTimeout(()=>{location.reload(true);},900);
+};
 
 /* ── INLINE BOOK EDIT ── */
 let _beNbId=null, _beIdx=-1;
@@ -7309,7 +7352,7 @@ function togglePwdInline(){
       // preview domains and silently skip registration even when sw.js was
       // perfectly reachable via a real GET - since a missing/broken service
       // worker blocks PWA installability entirely, register unconditionally.
-      navigator.serviceWorker.register('./sw.js?v=20260815_v400').then(reg=>{
+      navigator.serviceWorker.register('./sw.js?v=20260815_v500').then(reg=>{
         reg.update();
         setInterval(()=>reg.update(),30*60*1000);
         document.addEventListener('visibilitychange',()=>{

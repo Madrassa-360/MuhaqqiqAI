@@ -808,6 +808,14 @@ body {
             Select & Upload JSON
           </button>
         </div>
+
+        <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--bd-color); border-radius: var(--radius-sm); padding: 16px; text-align: center; grid-column: 1 / -1;">
+          <h3 style="font-size: 15px; margin-bottom: 8px;">📱 Mobile & Cross-Device Live Sync</h3>
+          <p style="font-size: 12px; color: var(--tx-sub); margin-bottom: 14px;">Export <code>app_config.json</code> to synchronize hidden cards and users across all mobile phones instantly.</p>
+          <button class="btn btn-primary" onclick="exportAppConfigJSON()" style="width: 100%;">
+            📱 Export app_config.json for Mobile Sync
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -1488,6 +1496,28 @@ function exportBackupJSON() {
   a.click();
   URL.revokeObjectURL(url);
   toast('Backup JSON exported!');
+}
+
+function exportAppConfigJSON() {
+  const data = {
+    app: 'Muhaqqiq AI',
+    version: '1.0.0',
+    updatedAt: new Date().toISOString(),
+    cards: state.cards,
+    users: state.users,
+    mainCats: state.mainCats
+  };
+
+  const jsonStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'app_config.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('app_config.json generated & downloaded for mobile sync!');
 }
 
 function importBackupJSON(e) {
