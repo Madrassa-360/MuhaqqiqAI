@@ -6,15 +6,19 @@
    - skipWaiting() + clients.claim() for instant update on all devices
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'muhaqqiq-ai-cache-v8.0-fluid-scroll';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v9.0-fluid-scroll';
 const CORE_ASSETS = [
   './',
   './index.html',
   './admin_manager.html',
   './manifest.json',
+  './app_config.json',
+  './default_books.json',
   './icon-192.png',
   './icon-512.png',
-  './maskable-icon-512.png'
+  './maskable-icon-512.png',
+  './apple-touch-icon.png',
+  './favicon-32.png'
 ];
 
 self.addEventListener('install', (event) => {

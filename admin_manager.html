@@ -652,6 +652,7 @@ body {
     <div class="header-stats">
       <div class="stat-pill">🎴 Cards: <strong id="statCardsTotal">0</strong></div>
       <div class="stat-pill">👁️ Active: <strong id="statCardsActive" style="color:var(--emerald)">0</strong></div>
+      <div class="stat-pill">🙈 Hidden: <strong id="statCardsHidden" style="color:var(--tx-sub)">0</strong></div>
       <div class="stat-pill">📚 Books: <strong id="statBooksTotal" style="color:var(--amber)">0</strong></div>
       <div class="stat-pill">👥 Users: <strong id="statUsersTotal">0</strong></div>
       <div class="stat-pill">⛔ Banned: <strong id="statUsersBanned" style="color:var(--rose)">0</strong></div>
@@ -673,20 +674,26 @@ body {
 
   <!-- NAVIGATION TABS -->
   <div class="tabs-header">
-    <button class="tab-btn active" onclick="switchTab('cards')">
+    <button class="tab-btn active" onclick="switchTab('cards', this)">
       🎴 Resource Cards & Links (<span id="tabCountCards">0</span>)
     </button>
-    <button class="tab-btn" onclick="switchTab('books')">
+    <button class="tab-btn" onclick="switchTab('categories', this)">
+      📂 Categories Manager (<span id="tabCountCats">0</span>)
+    </button>
+    <button class="tab-btn" onclick="switchTab('books', this)">
       📚 Books Catalog & Markdown Import (<span id="tabCountBooks">0</span>)
     </button>
-    <button class="tab-btn" onclick="switchTab('users')">
+    <button class="tab-btn" onclick="switchTab('users', this)">
       👥 User Management & Passwords (<span id="tabCountUsers">0</span>)
     </button>
-    <button class="tab-btn" onclick="switchTab('security')">
+    <button class="tab-btn" onclick="switchTab('settings', this)">
+      ⚙️ Site Settings
+    </button>
+    <button class="tab-btn" onclick="switchTab('security', this)">
       🔑 Master Password & Security
     </button>
-    <button class="tab-btn" onclick="switchTab('backup')">
-      ⚙️ Backup & Restore
+    <button class="tab-btn" onclick="switchTab('backup', this)">
+      💾 Backup & Restore
     </button>
   </div>
 
@@ -1385,7 +1392,8 @@ let state = {
   users: [],
   mainCats: [],
   booksCatalog: [],
-  pass: 'admin@hub2024'
+  pass: 'admin@hub2024',
+  sett: {}
 };
 
 // Helper utilities
@@ -1399,6 +1407,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 // Notification toast
 function toast(msg, type = 'success') {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const div = document.createElement('div');
   div.className = `toast ${type}`;
   div.innerHTML = `${type === 'success' ? '✅' : '⚠️'} ${msg}`;
@@ -1409,13 +1418,13 @@ function toast(msg, type = 'success') {
     setTimeout(() => div.remove(), 300);
   }, 3000);
 }
-
-// Initialize Boot
 function init() {
   loadData();
   renderCards();
+  renderCategories();
   renderBooksAdmin();
   renderUsers();
+  loadSiteSettings();
   updateStats();
 }
 
@@ -1492,6 +1501,7 @@ function loadData() {
   state.mainCats = jp(K.MAINCATS) || [];
   state.booksCatalog = jp(K.BOOKS) || [];
   state.pass = localStorage.getItem(K.PASS) || 'admin@hub2024';
+  state.sett = jp(K.SETT) || {};
 
   // Ensure built-in 1,193 books catalog loaded if empty or outdated
   if (state.booksCatalog.length < 1193) {
@@ -1517,12 +1527,208 @@ function loadData() {
 
   const catSelect = document.getElementById('filterCardCat');
   if (catSelect) {
-    catSelect.innerHTML = '<option value="ALL">All Categories<\/option>' + 
-      catNames.map(c => `<option value="${c}">${c}<\/option>`).join('');
+    catSelect.innerHTML = '<option value="ALL">All Categories</option>' + 
+      catNames.map(c => `<option value="${c}">${c}</option>`).join('');
   }
 
   const datalist = document.getElementById('catList');
   if (datalist) datalist.innerHTML = catNames.map(c => `<option value="${c}">`).join('');
+}
+
+function updateStats() {
+  const totalCards = state.cards.length;
+  const activeCards = state.cards.filter(c => c.visible).length;
+  const hiddenCards = totalCards - activeCards;
+  
+  const totalUsers = state.users.length;
+  const bannedUsers = state.users.filter(u => u.status === 'Banned').length;
+
+  if (document.getElementById('statCardsTotal')) document.getElementById('statCardsTotal').textContent = totalCards;
+  if (document.getElementById('statCardsActive')) document.getElementById('statCardsActive').textContent = activeCards;
+  if (document.getElementById('statCardsHidden')) document.getElementById('statCardsHidden').textContent = hiddenCards;
+  if (document.getElementById('statUsersTotal')) document.getElementById('statUsersTotal').textContent = totalUsers;
+  if (document.getElementById('statUsersBanned')) document.getElementById('statUsersBanned').textContent = bannedUsers;
+
+  if (document.getElementById('tabCountCards')) document.getElementById('tabCountCards').textContent = totalCards;
+  if (document.getElementById('tabCountUsers')) document.getElementById('tabCountUsers').textContent = totalUsers;
+  if (document.getElementById('tabCountCats')) document.getElementById('tabCountCats').textContent = (state.mainCats || []).length;
+  const countBooksEl = document.getElementById('tabCountBooks');
+  if (countBooksEl) countBooksEl.textContent = (state.booksCatalog || []).length.toLocaleString();
+}
+
+// ── NAVIGATION TABS ──
+function switchTab(tabId, btnTarget = null) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(sec => sec.classList.remove('active'));
+
+  if (btnTarget) {
+    btnTarget.classList.add('active');
+  } else if (typeof event !== 'undefined' && event && event.target && event.target.classList) {
+    event.target.classList.add('active');
+  }
+  const tabSec = document.getElementById(`tab-${tabId}`);
+  if (tabSec) tabSec.classList.add('active');
+}
+
+// ════════════ CATEGORIES MANAGER LOGIC ════════════
+function renderCategories() {
+  const search = (document.getElementById('searchCats')?.value || '').toLowerCase().trim();
+  const filtered = (state.mainCats || []).filter(mc => {
+    return !search || 
+      (mc.name && mc.name.toLowerCase().includes(search)) ||
+      (mc.ar && mc.ar.toLowerCase().includes(search));
+  }).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const tbody = document.getElementById('catsTableBody');
+  if (!tbody) return;
+
+  const tabCountCats = document.getElementById('tabCountCats');
+  if (tabCountCats) tabCountCats.textContent = (state.mainCats || []).length;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--tx-sub);">No main categories found matching your search.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(mc => {
+    const mappedCards = state.cards.filter(c => c.cat && (c.cat.toLowerCase() === (mc.name || '').toLowerCase() || c.cat.toLowerCase() === (mc.ar || '').toLowerCase())).length;
+    return `
+      <tr>
+        <td style="font-size: 20px; text-align: center;">${mc.icon || '📖'}</td>
+        <td style="font-weight: 700; color: #fff;">${escapeHtml(mc.name || '')}</td>
+        <td style="font-family: var(--font-ar); direction: rtl; font-size: 15px; color: #a5b4fc;">${escapeHtml(mc.ar || '')}</td>
+        <td style="text-align: center; font-weight: 600;"><span class="badge" style="background: rgba(255,255,255,0.06);">${mc.order || 1}</span></td>
+        <td style="text-align: center;"><span class="badge badge-active">${mappedCards} Notebook Cards</span></td>
+        <td style="text-align: right;">
+          <div style="display: flex; gap: 4px; justify-content: flex-end;">
+            <button class="btn btn-secondary btn-xs" onclick="openMainCatModal('${mc.id}')">✏️ Edit</button>
+            <button class="btn btn-rose btn-xs" onclick="delMainCat('${mc.id}')">🗑️ Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openMainCatModal(id = null) {
+  const modal = document.getElementById('modalMainCat');
+  const title = document.getElementById('modalCatTitle');
+  if (!modal) return;
+
+  if (id) {
+    const cat = state.mainCats.find(c => c.id === id);
+    if (!cat) return;
+    title.textContent = '✏️ Edit Main Category';
+    document.getElementById('catEditId').value = cat.id;
+    document.getElementById('catIcon').value = cat.icon || '📖';
+    document.getElementById('catOrder').value = cat.order || 1;
+    document.getElementById('catName').value = cat.name || '';
+    document.getElementById('catAr').value = cat.ar || '';
+  } else {
+    title.textContent = '📁 Add Main Category';
+    document.getElementById('catEditId').value = '';
+    document.getElementById('catIcon').value = '📖';
+    document.getElementById('catOrder').value = (state.mainCats.length || 0) + 1;
+    document.getElementById('catName').value = '';
+    document.getElementById('catAr').value = '';
+  }
+
+  modal.classList.add('open');
+}
+
+function closeMainCatModal() {
+  const modal = document.getElementById('modalMainCat');
+  if (modal) modal.classList.remove('open');
+}
+
+function saveMainCat() {
+  const id = document.getElementById('catEditId').value;
+  const name = document.getElementById('catName').value.trim();
+  const ar = document.getElementById('catAr').value.trim();
+
+  if (!name || !ar) {
+    alert('Please enter both Category Name (English Key) and Arabic Title.');
+    return;
+  }
+
+  const catData = {
+    id: id || uid(),
+    icon: document.getElementById('catIcon').value.trim() || '📖',
+    order: parseInt(document.getElementById('catOrder').value) || 1,
+    name: name,
+    ar: ar
+  };
+
+  if (id) {
+    const idx = state.mainCats.findIndex(c => c.id === id);
+    if (idx !== -1) state.mainCats[idx] = catData;
+  } else {
+    state.mainCats.push(catData);
+  }
+
+  sp(K.MAINCATS, state.mainCats);
+  closeMainCatModal();
+  renderCategories();
+  loadData();
+  updateStats();
+  toast('Main Category saved successfully!');
+}
+
+function delMainCat(id) {
+  const cat = state.mainCats.find(c => c.id === id);
+  if (!cat) return;
+  if (!confirm(`Are you sure you want to delete category "${cat.name}" (${cat.ar})?`)) return;
+
+  state.mainCats = state.mainCats.filter(c => c.id !== id);
+  sp(K.MAINCATS, state.mainCats);
+  renderCategories();
+  loadData();
+  updateStats();
+  toast('Category deleted', 'error');
+}
+
+// ════════════ SITE SETTINGS LOGIC ════════════
+function loadSiteSettings() {
+  const s = state.sett || jp(K.SETT) || {};
+  if (document.getElementById('settAppName')) document.getElementById('settAppName').value = s.appName || 'Muhaqqiq AI — المحقق الذكي';
+  if (document.getElementById('settSiteSubtitle')) document.getElementById('settSiteSubtitle').value = s.siteSubtitle || 'المكتبة الرقمية والشروح والتحقيقات الإسلامية';
+  if (document.getElementById('settHeroTitle')) document.getElementById('settHeroTitle').value = s.heroTitle || 'Muhaqqiq AI';
+  if (document.getElementById('settTheme')) document.getElementById('settTheme').value = s.theme || 'emerald-dark';
+  if (document.getElementById('settHeroSubAr')) document.getElementById('settHeroSubAr').value = s.heroSubAr || 'الأرشيف المنهجي الذكي للمراجع والكتب الإسلامية والبحوث التراثية';
+  if (document.getElementById('settHeroSubEn')) document.getElementById('settHeroSubEn').value = s.heroSubEn || 'AI-Powered Classical Reference & Research Notebook Hub for Islamic Scholars';
+  if (document.getElementById('settAnnouncementText')) document.getElementById('settAnnouncementText').value = s.announcementText || '';
+  if (document.getElementById('settAnnouncementVisible')) document.getElementById('settAnnouncementVisible').value = s.announcementVisible ? 'true' : 'false';
+  if (document.getElementById('settContactEmail')) document.getElementById('settContactEmail').value = s.contactEmail || 'contact@al-turath.org';
+  if (document.getElementById('settFooterText')) document.getElementById('settFooterText').value = s.footerText || 'جميع الحقوق محفوظة — منصة المحقق الذكي لمكتبة التراث © 2026';
+}
+
+function saveSiteSettings() {
+  state.sett = {
+    appName: document.getElementById('settAppName')?.value.trim() || 'Muhaqqiq AI',
+    siteSubtitle: document.getElementById('settSiteSubtitle')?.value.trim() || '',
+    heroTitle: document.getElementById('settHeroTitle')?.value.trim() || 'Muhaqqiq AI',
+    theme: document.getElementById('settTheme')?.value || 'emerald-dark',
+    heroSubAr: document.getElementById('settHeroSubAr')?.value.trim() || '',
+    heroSubEn: document.getElementById('settHeroSubEn')?.value.trim() || '',
+    announcementText: document.getElementById('settAnnouncementText')?.value.trim() || '',
+    announcementVisible: document.getElementById('settAnnouncementVisible')?.value === 'true',
+    contactEmail: document.getElementById('settContactEmail')?.value.trim() || 'contact@al-turath.org',
+    footerText: document.getElementById('settFooterText')?.value.trim() || ''
+  };
+
+  sp(K.SETT, state.sett);
+  toast('💾 Site Settings updated successfully!');
+}
+
+// ════════════ CARD BOOKS MODAL LOGIC ════════════
+function closeBooksModal() {
+  const modal = document.getElementById('modalBooks');
+  if (modal) modal.classList.remove('open');
+}
+
+function saveCardBooks() {
+  closeBooksModal();
+  toast('Card Books updated successfully!');
 }
 
 
@@ -2267,6 +2473,9 @@ function closeSingleBookModal() {
   const modal = document.getElementById('modalSingleBook');
   if (modal) modal.classList.remove('open');
 }
+function openSingleBookModal(id = null) { openBookModal(id); }
+function closeBookModal() { closeSingleBookModal(); }
+function saveBookModal() { applySingleBook(); }
 
 function applySingleBook() {
   const idVal = document.getElementById('singleBookIdx').value;
