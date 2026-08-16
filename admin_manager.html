@@ -1419,6 +1419,31 @@ function init() {
   updateStats();
 }
 
+function getDefaultUsers() {
+  return [
+    {
+      id: 'usr_admin',
+      username: 'admin',
+      fullName: 'Super Administrator',
+      email: 'admin@al-turath.org',
+      password: localStorage.getItem(K.PASS) || 'admin@hub2024',
+      role: 'Admin',
+      status: 'Active',
+      createdAt: '2026-01-01'
+    },
+    {
+      id: 'usr_researcher',
+      username: 'researcher',
+      fullName: 'Islamic Scholar & Researcher',
+      email: 'researcher@al-turath.org',
+      password: 'researcherpass123',
+      role: 'Researcher',
+      status: 'Active',
+      createdAt: '2026-01-15'
+    }
+  ];
+}
+
 function loadData() {
   state.cards = jp(K.NB) || [];
   state.users = jp(K.USERS) || getDefaultUsers();

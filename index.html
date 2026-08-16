@@ -2594,28 +2594,74 @@ html, body {
         <img src="./icon-192.png" alt="Muhaqqiq AI Logo" style="width:64px;height:64px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,0.3);object-fit:cover;display:block;margin:0 auto">
       </div>
       <div class="pw-title" id="pwTitle">Muhaqqiq AI</div>
-      <div class="pw-hint">User Authentication<br><span style="font-size:10px;opacity:.7">Sign in with account credentials assigned by Admin</span></div>
+      <div class="pw-hint" id="pwSubHint">User Authentication<br><span style="font-size:10px;opacity:.7">Sign in with registered credentials or create a new account</span></div>
       
-      <div class="pw-input-wrap" style="margin-bottom:12px">
-        <input id="pwUserIn" type="text" placeholder="Username or Email..."
-          onkeydown="if(event.key==='Enter')document.getElementById('pwInput').focus()"
-          autocomplete="username" autocorrect="off" spellcheck="false"
-          style="width:100%;padding:13px 18px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:14px;color:#fff;font-size:14px;outline:none">
+      <!-- AUTH MODE TAB SWITCHER -->
+      <div style="display:flex;gap:6px;background:rgba(0,0,0,0.25);padding:4px;border-radius:12px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.1);">
+        <button id="authTabSignin" class="btn btn-sm" onclick="switchAuthTab('signin')" style="flex:1;background:var(--g);color:#fff;border-radius:8px;font-size:12px;font-weight:600;padding:6px;">🔑 Sign In</button>
+        <button id="authTabRegister" class="btn btn-ghost btn-sm" onclick="switchAuthTab('register')" style="flex:1;color:rgba(255,255,255,0.7);border-radius:8px;font-size:12px;font-weight:600;padding:6px;">📝 Register</button>
       </div>
 
-      <div class="pw-input-wrap">
-        <input id="pwInput" type="password" placeholder="Password..."
-          onkeydown="if(event.key==='Enter')window.doLogin()"
-          autocomplete="current-password" autocorrect="off" spellcheck="false">
-        <button class="pw-eye-btn" onclick="togglePwdInline()" title="دکھائیں/چھپائیں">
-          <svg id="pwEyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-          </svg>
-        </button>
+      <!-- SIGN IN FORM -->
+      <div id="formSignIn">
+        <div class="pw-input-wrap" style="margin-bottom:12px">
+          <input id="pwUserIn" type="text" placeholder="Username or Email..."
+            onkeydown="if(event.key==='Enter')document.getElementById('pwInput').focus()"
+            autocomplete="username" autocorrect="off" spellcheck="false"
+            style="width:100%;padding:13px 18px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:14px;color:#fff;font-size:14px;outline:none">
+        </div>
+
+        <div class="pw-input-wrap">
+          <input id="pwInput" type="password" placeholder="Password..."
+            onkeydown="if(event.key==='Enter')window.doLogin()"
+            autocomplete="current-password" autocorrect="off" spellcheck="false">
+          <button class="pw-eye-btn" onclick="togglePwdInline()" title="Show/Hide Password">
+            <svg id="pwEyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+
+        <button class="pw-unlock-btn" onclick="window.doLogin()" style="margin-top:14px">🔓 Sign In</button>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="formRegister" style="display:none">
+        <div class="pw-input-wrap" style="margin-bottom:10px">
+          <input id="regNameIn" type="text" placeholder="Full Name (e.g. Dr. Ahmad Khan)..."
+            autocomplete="name" spellcheck="false"
+            style="width:100%;padding:11px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:13px;outline:none">
+        </div>
+
+        <div class="pw-input-wrap" style="margin-bottom:10px">
+          <input id="regUserIn" type="text" placeholder="Desired Username (lowercase)..."
+            autocomplete="username" spellcheck="false"
+            style="width:100%;padding:11px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:13px;outline:none">
+        </div>
+
+        <div class="pw-input-wrap" style="margin-bottom:10px">
+          <input id="regEmailIn" type="email" placeholder="Email Address..."
+            autocomplete="email" spellcheck="false"
+            style="width:100%;padding:11px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:13px;outline:none">
+        </div>
+
+        <div class="pw-input-wrap" style="margin-bottom:10px">
+          <input id="regPassIn" type="password" placeholder="Create Password (min 6 chars)..."
+            autocomplete="new-password" spellcheck="false"
+            style="width:100%;padding:11px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:13px;outline:none">
+        </div>
+
+        <div class="pw-input-wrap">
+          <input id="regConfirmIn" type="password" placeholder="Confirm Password..."
+            onkeydown="if(event.key==='Enter')window.doRegister()"
+            autocomplete="new-password" spellcheck="false"
+            style="width:100%;padding:11px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:13px;outline:none">
+        </div>
+
+        <button class="pw-unlock-btn" onclick="window.doRegister()" style="margin-top:14px;background:linear-gradient(135deg,#10b981,#059669)">✨ Create Account & Sign In</button>
       </div>
 
       <div id="pwError" style="margin-top:10px;font-size:12px;color:#ff5252;display:none;background:rgba(255,82,82,0.15);padding:8px 12px;border-radius:8px;border:1px solid rgba(255,82,82,0.3)"></div>
-      <button class="pw-unlock-btn" onclick="window.doLogin()" style="margin-top:14px">🔓 Sign In</button>
     </div>
   </div>
 </div>
@@ -2642,6 +2688,7 @@ html, body {
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>Contact</button>
   </nav>
   <div class="topbar-right">
+    <div id="headerUserWidget" style="display:none;align-items:center;margin-left:4px;"></div>
     <button class="btn btn-ghost btn-icon" id="pwaInstallBtn" onclick="triggerInstall()" title="Install App" style="display:none">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </button>
@@ -3801,8 +3848,18 @@ html, body {
 <!-- EDIT MODAL -->
 <div class="modal-bg" id="editMod" onclick="if(event.target===this)closeMod('editMod')"><div class="modal"><div class="modal-hdr"><div class="modal-ttl"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Notebook</div><button class="btn btn-ghost btn-icon" onclick="closeMod('editMod')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="modal-body"><div class="fg"><label class="fl">Icon</label><input class="fc" type="text" id="mIcon" style="max-width:100px"></div><div class="form-row"><div class="fg"><label class="fl">Title</label><input class="fc" type="text" id="mTitle"></div><div class="fg"><label class="fl">Category</label><select class="fc" id="mCat"></select></div></div><div class="fg"><label class="fl">Description</label><textarea class="fc" id="mDesc"></textarea></div><div class="fg"><label class="fl">URL</label><input class="fc" type="url" id="mLink"></div></div><div class="modal-foot"><button class="btn btn-primary btn-sm" onclick="saveEdit()">Save</button><button class="btn btn-ghost btn-sm" onclick="closeMod('editMod')">Cancel</button></div></div></div>
 
-<!-- THEME MODAL -->
-<div class="modal-bg" id="themeMod" onclick="if(event.target===this)closeMod('themeMod')"><div class="modal" style="max-width:360px"><div class="modal-hdr"><div class="modal-ttl">Choose Theme</div><button class="btn btn-ghost btn-icon" onclick="closeMod('themeMod')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="modal-body"><div class="theme-grid" id="tGridM"></div></div></div></div>
+<!-- USER PROFILE MODAL -->
+<div class="prev-overlay" id="userProfileModal" onclick="if(event.target===this)closeMod('userProfileModal')">
+  <div class="prev-modal" style="max-width:420px;margin:auto">
+    <div class="prev-hdr">
+      <div style="font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;font-size:14px">
+        👤 User Account Profile
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeMod('userProfileModal')" style="margin-left:auto;color:#fff;padding:2px 8px">✕</button>
+    </div>
+    <div style="padding:20px;" id="userProfileModalBody"></div>
+  </div>
+</div>
 
 
 <script>
@@ -4740,9 +4797,77 @@ function checkAuth(){
   // password screen shown by splash sequence
 }
 function showUserUI(){
-  const u=S.cu;if(!u)return;
-  const lb=document.getElementById('logoutBtn');if(lb)lb.style.display='flex';
-  const ml=document.getElementById('mobLogout');if(ml)ml.style.display='flex';
+  const u = S.cu;
+  if (!u) return;
+
+  const widget = document.getElementById('headerUserWidget');
+  if (widget) {
+    const roleBg = u.role === 'Admin' ? 'rgba(239,68,68,0.2)' : u.role === 'Researcher' ? 'rgba(59,130,246,0.2)' : 'rgba(16,185,129,0.2)';
+    const roleColor = u.role === 'Admin' ? '#fca5a5' : u.role === 'Researcher' ? '#93c5fd' : '#6ee7b7';
+    widget.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);cursor:pointer;" onclick="openUserProfileModal()" title="View Account Details">
+        <span style="font-size:12px;">👤</span>
+        <span style="font-size:12px;font-weight:600;color:#fff;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(u.name || u.username)}</span>
+        <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;background:${roleBg};color:${roleColor};">${escapeHtml(u.role || 'User')}</span>
+      </div>
+    `;
+    widget.style.display = 'flex';
+  }
+
+  const lb = document.getElementById('logoutBtn');
+  if (lb) lb.style.display = 'flex';
+  const ml = document.getElementById('mobLogout');
+  if (ml) ml.style.display = 'flex';
+}
+
+function openUserProfileModal() {
+  const u = S.cu;
+  if (!u) return;
+  const modal = document.getElementById('userProfileModal');
+  const body = document.getElementById('userProfileModalBody');
+  if (!modal || !body) return;
+
+  body.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--g);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+        ${(u.name || u.username || 'U')[0].toUpperCase()}
+      </div>
+      <h3 style="font-size:16px;font-weight:700;color:#fff;margin:0;">${escapeHtml(u.name || u.username)}</h3>
+      <div style="font-size:12px;color:var(--tx-sub);margin-top:2px;">@${escapeHtml(u.username)}</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;display:grid;gap:8px;">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--tx-sub);">Email:</span>
+        <span style="color:#fff;font-weight:600;">${escapeHtml(u.email || u.username)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--tx-sub);">Role:</span>
+        <span style="color:#a5b4fc;font-weight:600;">${escapeHtml(u.role || 'User')}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--tx-sub);">Account Status:</span>
+        <span style="color:#6ee7b7;font-weight:600;">✅ ${escapeHtml(u.status || 'Active')}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="color:var(--tx-sub);">User ID:</span>
+        <span style="color:var(--tx-sub);font-family:monospace;">${escapeHtml(u.id || 'N/A')}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;">
+      ${(u.role === 'Admin' || u.role === 'Researcher') ? `
+        <a href="./admin_manager.html" target="_blank" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;text-decoration:none;">
+          🔑 Open Admin Panel
+        </a>
+      ` : ''}
+      <button class="btn btn-rose btn-sm" style="flex:1;justify-content:center;" onclick="closeMod('userProfileModal');doLogout();">
+        🚪 Sign Out
+      </button>
+    </div>
+  `;
+
+  modal.classList.add('open');
 }
 function showAlert(id,type,msg){const el=document.getElementById(id);if(!el)return;el.className='alert alert-'+type;el.textContent=(type==='err'?'⚠️ ':'✅ ')+msg;el.style.display='block';}
 function togglePwd(id,btn){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';btn.querySelector('svg').style.opacity=el.type==='text'?'.5':'1';}
@@ -7665,22 +7790,158 @@ function togglePwdInline(){
   if(ico)ico.style.opacity=inp.type==='text'?'.5':'1';
 }
 
-/* ── START SPLASH (functions now defined above) ── */
+window.switchAuthTab = function(tab) {
+  const btnSignin = document.getElementById('authTabSignin');
+  const btnRegister = document.getElementById('authTabRegister');
+  const formSignin = document.getElementById('formSignIn');
+  const formRegister = document.getElementById('formRegister');
+  const errEl = document.getElementById('pwError');
+  if (errEl) errEl.style.display = 'none';
+
+  if (tab === 'register') {
+    if (btnSignin) { btnSignin.style.background = 'transparent'; btnSignin.style.color = 'rgba(255,255,255,0.7)'; }
+    if (btnRegister) { btnRegister.style.background = 'var(--g)'; btnRegister.style.color = '#fff'; }
+    if (formSignin) formSignin.style.display = 'none';
+    if (formRegister) formRegister.style.display = 'block';
+  } else {
+    if (btnRegister) { btnRegister.style.background = 'transparent'; btnRegister.style.color = 'rgba(255,255,255,0.7)'; }
+    if (btnSignin) { btnSignin.style.background = 'var(--g)'; btnSignin.style.color = '#fff'; }
+    if (formRegister) formRegister.style.display = 'none';
+    if (formSignin) formSignin.style.display = 'block';
+  }
+};
+
+window.doRegister = function() {
+  const nameIn = document.getElementById('regNameIn');
+  const userIn = document.getElementById('regUserIn');
+  const emailIn = document.getElementById('regEmailIn');
+  const passIn = document.getElementById('regPassIn');
+  const confirmIn = document.getElementById('regConfirmIn');
+  const errEl = document.getElementById('pwError');
+
+  const fullName = (nameIn ? nameIn.value : '').trim();
+  const username = (userIn ? userIn.value : '').trim().toLowerCase();
+  const email = (emailIn ? emailIn.value : '').trim().toLowerCase();
+  const password = (passIn ? passIn.value : '').trim();
+  const confirm = (confirmIn ? confirmIn.value : '').trim();
+
+  if (!fullName || !username || !password) {
+    _showRegErr('⚠️ Please fill in all required fields (Full Name, Username, and Password).');
+    return;
+  }
+
+  if (password.length < 6) {
+    _showRegErr('⚠️ Password must be at least 6 characters long.');
+    return;
+  }
+
+  if (password !== confirm) {
+    _showRegErr('⚠️ Passwords do not match.');
+    return;
+  }
+
+  const rawUsers = jp(K.USERS) || [];
+  const existing = rawUsers.find(u => 
+    (u.username && u.username.toLowerCase() === username) ||
+    (email && u.email && u.email.toLowerCase() === email)
+  );
+
+  if (existing) {
+    _showRegErr('⚠️ Username or email is already registered. Please sign in instead.');
+    return;
+  }
+
+  const newUser = {
+    id: 'usr_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    username: username,
+    fullName: fullName,
+    email: email || `${username}@user.com`,
+    password: password,
+    role: 'User',
+    status: 'Active',
+    createdAt: new Date().toISOString().slice(0, 10)
+  };
+
+  rawUsers.push(newUser);
+  sp(K.USERS, rawUsers);
+
+  S.cu = {
+    id: newUser.id,
+    username: newUser.username,
+    name: newUser.fullName,
+    email: newUser.email,
+    role: newUser.role,
+    status: newUser.status
+  };
+
+  localStorage.setItem(K.CU, JSON.stringify(S.cu));
+  localStorage.setItem('at_cu', JSON.stringify(S.cu));
+  sv();
+  showUserUI();
+
+  const spOverlay = document.getElementById('splashPwOverlay');
+  if (spOverlay) { spOverlay.style.display = 'none'; spOverlay.style.visibility = 'hidden'; }
+
+  if (typeof toast === 'function') toast(`🎉 Welcome ${newUser.fullName}! Your account has been registered and logged in.`);
+
+  function _showRegErr(msg) {
+    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  }
+};
+
+window.validateCurrentSession = function() {
+  if (!S.cu) return;
+  const rawUsers = jp(K.USERS) || [];
+
+  if (S.cu.id === 'usr_admin' || S.cu.username === 'admin') {
+    S.adm = true;
+    showUserUI();
+    return;
+  }
+
+  const matched = rawUsers.find(u => u.id === S.cu.id || (u.username && u.username.toLowerCase() === S.cu.username.toLowerCase()));
+
+  if (!matched) return;
+
+  if (matched.status === 'Banned') {
+    doLogout();
+    if (typeof toast === 'function') toast('⛔ Your account has been banned by the Administrator.', 'err');
+    return;
+  }
+
+  S.cu.name = matched.fullName || matched.username;
+  S.cu.email = matched.email || matched.username;
+  S.cu.role = matched.role || 'User';
+  S.cu.status = matched.status || 'Active';
+  if (S.cu.role === 'Admin') S.adm = true;
+
+  localStorage.setItem(K.CU, JSON.stringify(S.cu));
+  localStorage.setItem('at_cu', JSON.stringify(S.cu));
+  showUserUI();
+};
+
+window.addEventListener('storage', (e) => {
+  if (e.key === K.USERS || e.key === 'at_users' || e.key === K.CU || e.key === 'at_cu' || e.key === 'at_last_modified') {
+    window.validateCurrentSession();
+  }
+});
+
+/* ── START SPLASH ── */
 (function(){
-  const cu=JSON.parse(localStorage.getItem(K.CU)||localStorage.getItem('at_cu')||'null');
-  if(cu&&(cu.username||cu.email)){
-    // Verify user is not banned
+  const cu = JSON.parse(localStorage.getItem(K.CU) || localStorage.getItem('at_cu') || 'null');
+  if (cu && (cu.username || cu.email)) {
     const rawUsers = JSON.parse(localStorage.getItem(K.USERS) || '[]');
     const matched = rawUsers.find(u => u.username === cu.username || u.id === cu.id);
-    if(matched && matched.status === 'Banned'){
+    if (matched && matched.status === 'Banned') {
       localStorage.removeItem(K.CU);
       localStorage.removeItem('at_cu');
       runSplash();
       return;
     }
     S.cu = cu;
-    const sp=document.getElementById('splashPwOverlay');
-    if(sp){sp.style.display='none';sp.style.visibility='hidden';}
+    showUserUI();
+    const sp = document.getElementById('splashPwOverlay');
+    if (sp) { sp.style.display = 'none'; sp.style.visibility = 'hidden'; }
   } else {
     runSplash();
   }
