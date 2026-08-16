@@ -389,7 +389,7 @@
 }
 
 /* ─── BASE ─── */
-html{overscroll-behavior-y:contain}
+html{scroll-behavior:smooth;scroll-padding-top:70px;scrollbar-width:thin;scrollbar-color:var(--bd3) transparent;overscroll-behavior-y:contain}
 body{
   font-family:var(--font-en);
   background:var(--bg);
@@ -403,9 +403,9 @@ body{
 }
 .ur{font-family:var(--font-ur);direction:rtl;line-height:2.2}
 .ar{font-family:var(--font-ar);direction:rtl;line-height:2.6;font-size:1.18em}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.02)}
+::-webkit-scrollbar-thumb{background:var(--bd3);border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:var(--p)}
 
 /* ─── ORNAMENTAL PATTERNS ─── */
@@ -1763,14 +1763,15 @@ textarea.fc{resize:vertical;min-height:70px}
 /* ─── BACK TO TOP / TOAST ─── */
 .backtop{
   position:fixed;bottom:22px;right:22px;z-index:100;
-  width:36px;height:36px;
+  width:40px;height:40px;
   background:linear-gradient(135deg,var(--p),var(--pl));
   color:#fff;border:none;border-radius:50%;cursor:pointer;
-  box-shadow:var(--sh1);display:none;align-items:center;justify-content:center;
-  transition:var(--t);
+  box-shadow:var(--sh1);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transform:translateY(12px) scale(.9);
+  transition:opacity .25s ease, transform .25s ease, box-shadow .2s ease;
 }
-.backtop:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
-.backtop.show{display:flex}
+.backtop:hover{transform:translateY(-3px) scale(1.06);box-shadow:var(--sh2)}
+.backtop.show{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
 .toast{
   position:fixed;bottom:20px;left:20px;
   padding:10px 14px;border-radius:var(--r-sm);
@@ -3768,6 +3769,29 @@ function isCardVisible(n){
   return true;
 }
 
+function initHorizontalDragScroll() {
+  document.querySelectorAll('.cat-nav-scroll, #heroQuickCatPills, .tab-strip, .stats-nb-tbl-wrap').forEach(el => {
+    if (!el || el.dataset.dragInit) return;
+    el.dataset.dragInit = 'true';
+    let isDown = false, startX, scrollLeft;
+    el.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - el.offsetLeft;
+      scrollLeft = el.scrollLeft;
+      el.style.cursor = 'grabbing';
+    });
+    el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = ''; });
+    el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = ''; });
+    el.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      el.scrollLeft = scrollLeft - walk;
+    });
+  });
+}
+
 function boot(){
   const savedNbs=jp(K.NB);
   S.nbs=(savedNbs && Array.isArray(savedNbs) && savedNbs.length>0) ? savedNbs : defNBs();
@@ -3792,6 +3816,7 @@ function boot(){
   applyTheme(S.sett.theme,false);
   syncName();checkAuth();renderPub();buildThemes();updateGlobalBookStats();loadSavedFonts();
   syncRemoteConfig();
+  initHorizontalDragScroll();
   document.addEventListener('keydown',e=>{
     if(e.ctrlKey&&e.shiftKey&&e.key==='A'){e.preventDefault();openAdmin();}
     if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();const s=document.getElementById('srchIn');if(s){s.focus();s.select();}}
