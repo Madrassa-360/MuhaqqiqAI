@@ -3801,12 +3801,72 @@ function boot(){
   window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',scrollY>300);});
 }
 
+window.addEventListener('storage', (e) => {
+  if ([K.NB, K.MAINCATS, K.SETT, K.CATMAP, K.SUBCATAR].includes(e.key)) {
+    console.log('[Storage Event] Live admin update detected! Re-rendering view...');
+    const savedNbs = jp(K.NB); if(savedNbs) S.nbs = savedNbs;
+    const savedCats = jp(K.MAINCATS); if(savedCats) S.mainCats = savedCats;
+    const savedSett = jp(K.SETT); if(savedSett) S.sett = {...S.sett, ...savedSett};
+    const savedMap = jp(K.CATMAP); if(savedMap) S.catMap = savedMap;
+    const savedSubAr = jp(K.SUBCATAR); if(savedSubAr) S.subCatAr = savedSubAr;
+    applySiteSettings();
+    if(typeof renderPub==='function') renderPub();
+    if(typeof updateGlobalBookStats==='function') updateGlobalBookStats();
+    if(typeof renderMainCats==='function') renderMainCats();
+  }
+});
+
+function applySiteSettings(){
+  const st = S.sett || {};
+  if (st.appName) {
+    document.title = st.appName;
+    const el1 = document.getElementById('topAppName'); if(el1) el1.textContent = st.appName;
+    const el2 = document.getElementById('mobName'); if(el2) el2.textContent = st.appName;
+    const el3 = document.getElementById('sName'); if(el3) el3.value = st.appName;
+  }
+  if (st.heroTitle) {
+    const el = document.getElementById('heroTitle'); if(el) el.textContent = st.heroTitle;
+  }
+  if (st.heroSubAr) {
+    const tagAr = document.querySelector('.hero-tagline div:nth-child(1)');
+    if(tagAr) tagAr.textContent = st.heroSubAr;
+  }
+  if (st.heroSubEn) {
+    const tagEn = document.querySelector('.hero-tagline div:nth-child(2)');
+    if(tagEn) tagEn.textContent = st.heroSubEn;
+  }
+  if (st.announcementText) {
+    const wt = document.getElementById('wBTitle'); if(wt) wt.textContent = st.announcementText;
+  }
+  if (st.announcementVisible !== undefined) {
+    const wb = document.getElementById('wBanner'); if(wb) wb.style.display = st.announcementVisible ? 'block' : 'none';
+  }
+  if (st.theme) {
+    applyTheme(st.theme, false);
+  }
+}
+
 function syncRemoteConfig(force){
   fetch('./app_config.json?v='+Date.now())
     .then(r=>r.ok?r.json():null)
     .then(data=>{
       if(!data)return;
+
+      const localMod = parseInt(localStorage.getItem('at_last_modified') || '0');
+      const remoteMod = data.updatedAt ? Date.parse(data.updatedAt) : 0;
+
+      // Do NOT overwrite local admin edits if local data is newer than server app_config.json
+      if (!force && localMod && remoteMod && localMod > remoteMod) {
+        console.log('[Sync] Local admin edits are newer than server app_config.json. Retaining local edits.');
+        return;
+      }
+
       let sync=false;
+      if(data.settings){
+        localStorage.setItem(K.SETT,JSON.stringify(data.settings));
+        S.sett={...S.sett,...data.settings};
+        sync=true;
+      }
       if(Array.isArray(data.cards) && data.cards.length>0){
         localStorage.setItem(K.NB,JSON.stringify(data.cards));
         S.nbs=data.cards;
@@ -3814,6 +3874,7 @@ function syncRemoteConfig(force){
       }
       if(Array.isArray(data.users) && data.users.length>0){
         localStorage.setItem(K.USERS,JSON.stringify(data.users));
+        S.users=data.users;
         sync=true;
       }
       if(Array.isArray(data.mainCats) && data.mainCats.length>0){
@@ -3821,11 +3882,25 @@ function syncRemoteConfig(force){
         S.mainCats=data.mainCats;
         sync=true;
       }
+      if(data.catMap){
+        localStorage.setItem(K.CATMAP,JSON.stringify(data.catMap));
+        S.catMap=data.catMap;
+        sync=true;
+      }
+      if(data.subCatAr){
+        localStorage.setItem(K.SUBCATAR,JSON.stringify(data.subCatAr));
+        S.subCatAr=data.subCatAr;
+        sync=true;
+      }
+      if(remoteMod){
+        localStorage.setItem('at_last_modified', remoteMod.toString());
+      }
       if(sync||force){
+        applySiteSettings();
         if(typeof renderPub==='function')renderPub();
         if(typeof updateGlobalBookStats==='function')updateGlobalBookStats();
         if(typeof renderMainCats==='function')renderMainCats();
-        if(force&&typeof toast==='function')toast('✅ Latest app data & card visibility synchronized!');
+        if(force&&typeof toast==='function')toast('✅ Latest app data & site settings synchronized!');
       }
     })
     .catch(()=>{});

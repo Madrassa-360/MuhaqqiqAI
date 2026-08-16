@@ -6,7 +6,7 @@
    - skipWaiting() + clients.claim() for instant update on all devices
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'muhaqqiq-ai-cache-v5.0-mobile-sync-fix';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v6.0-live-sync-fix';
 const CORE_ASSETS = [
   './',
   './index.html',

@@ -1229,7 +1229,10 @@ let state = {
 
 // Helper utilities
 const jp = key => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } };
-const sp = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+const sp = (key, val) => {
+  localStorage.setItem(key, JSON.stringify(val));
+  localStorage.setItem('at_last_modified', Date.now().toString());
+};
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 // Notification toast
