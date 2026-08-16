@@ -2135,7 +2135,7 @@ kbd{background:var(--sur);border:1px solid var(--bd);border-radius:3px;padding:1
   font-size:13px;font-weight:500;
   border:1px solid var(--bd);background:var(--sur);
   color:var(--tx2);cursor:pointer;transition:var(--t);
-  white-space:nowrap;
+  white-space:nowrap;word-break:keep-all;
 }
 .sub-pill:hover{border-color:var(--bd2);color:var(--tx);background:var(--sur2)}
 .sub-pill.active{
@@ -4749,16 +4749,16 @@ async function renderUserBooksTable() {
 
   tbody.innerHTML = filtered.map((b, i) => `
     <tr style="border-bottom: 1px solid var(--bd); transition: background 0.2s;" onmouseover="this.style.background='var(--illum)'" onmouseout="this.style.background='transparent'">
-      <td style="padding: 10px 12px; text-align: center; color: var(--tx3); font-weight: 600; white-space: nowrap;">${i + 1}</td>
+      <td style="padding: 10px 12px; text-align: center; color: var(--tx3); font-weight: 600; white-space: nowrap; word-break: keep-all;">${i + 1}</td>
       <td style="padding: 10px 12px; font-weight: 700; color: var(--tx); font-size: 13.5px; line-height: 1.4;">${esc(b.title || '')}</td>
       <td style="padding: 10px 12px; color: var(--tx2); font-size: 12.5px;">${esc(b.author || 'غير محدد')}</td>
-      <td style="padding: 10px 12px; text-align: center; font-weight: 700; color: var(--gl3); white-space: nowrap;">${esc(b.deathYear || 'غير مذكور')}</td>
-      <td style="padding: 10px 12px; text-align: center; white-space: nowrap;"><span style="background: var(--illum); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: var(--tx); border: 1px solid var(--bd); font-weight: 600;">${esc(b.volumes || '1')}</span></td>
+      <td style="padding: 10px 12px; text-align: center; font-weight: 700; color: var(--gl3); white-space: nowrap; word-break: keep-all;">${esc(b.deathYear || 'غير مذكور')}</td>
+      <td style="padding: 10px 12px; text-align: center; white-space: nowrap; word-break: keep-all;"><span style="background: var(--illum); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: var(--tx); border: 1px solid var(--bd); font-weight: 600; white-space: nowrap; word-break: keep-all; display: inline-block;">${esc(b.volumes || '1')}</span></td>
       <td style="padding: 10px 12px; color: var(--tx2); font-size: 12px;">${esc(b.tahqeeq || 'غير محدد')}</td>
       <td style="padding: 10px 12px; color: var(--tx2); font-size: 12px;">${esc(b.publisher || 'غير مذكور')}</td>
-      <td style="padding: 10px 12px; text-align: center; color: var(--tx2); white-space: nowrap; font-size: 12px;">${esc(b.edition || 'غير مذكور')}</td>
-      <td style="padding: 10px 12px; text-align: center; color: var(--tx3); white-space: nowrap; font-size: 12px;">${esc(b.pubYear || 'غير مذكور')}</td>
-      <td style="padding: 10px 12px; text-align: center; white-space: nowrap;"><span style="background: var(--illum2); color: var(--gl3); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; border: 1px solid var(--bd2);">${esc(b.category || 'عام')}</span></td>
+      <td style="padding: 10px 12px; text-align: center; color: var(--tx2); white-space: nowrap; word-break: keep-all; font-size: 12px;">${esc(b.edition || 'غير مذكور')}</td>
+      <td style="padding: 10px 12px; text-align: center; color: var(--tx3); white-space: nowrap; word-break: keep-all; font-size: 12px;">${esc(b.pubYear || 'غير مذكور')}</td>
+      <td style="padding: 10px 12px; text-align: center; white-space: nowrap; word-break: keep-all;"><span style="background: var(--illum2); color: var(--gl3); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; border: 1px solid var(--bd2); white-space: nowrap; word-break: keep-all; display: inline-block;">${esc(b.category || 'عام')}</span></td>
     </tr>
   `).join('');
 }
