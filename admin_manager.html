@@ -622,12 +622,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.3s ease-out;
 }
-
-.toast.success { border-left-color: var(--emerald); }
-.toast.error { border-left-color: var(--rose); }
-
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -656,7 +652,7 @@ body {
     <div class="header-stats">
       <div class="stat-pill">🎴 Cards: <strong id="statCardsTotal">0</strong></div>
       <div class="stat-pill">👁️ Active: <strong id="statCardsActive" style="color:var(--emerald)">0</strong></div>
-      <div class="stat-pill">🙈 Hidden: <strong id="statCardsHidden" style="color:var(--rose)">0</strong></div>
+      <div class="stat-pill">📚 Books: <strong id="statBooksTotal" style="color:var(--amber)">0</strong></div>
       <div class="stat-pill">👥 Users: <strong id="statUsersTotal">0</strong></div>
       <div class="stat-pill">⛔ Banned: <strong id="statUsersBanned" style="color:var(--rose)">0</strong></div>
     </div>
@@ -679,6 +675,9 @@ body {
   <div class="tabs-header">
     <button class="tab-btn active" onclick="switchTab('cards')">
       🎴 Resource Cards & Links (<span id="tabCountCards">0</span>)
+    </button>
+    <button class="tab-btn" onclick="switchTab('books')">
+      📚 Books Catalog & Markdown Import (<span id="tabCountBooks">0</span>)
     </button>
     <button class="tab-btn" onclick="switchTab('users')">
       👥 User Management & Passwords (<span id="tabCountUsers">0</span>)
@@ -899,6 +898,111 @@ body {
     </div>
   </section>
 
+  <!-- ════════════ TAB: BOOKS CATALOG & MARKDOWN IMPORT ════════════ -->
+  <section id="tab-books" class="tab-content">
+    <!-- Markdown Parser & Import Panel -->
+    <div style="background: var(--bg-card); border: 1px solid var(--bd-color); border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+        <div>
+          <h2 style="font-size: 17px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+            ✍️ Markdown Books Catalog Importer (استيراد كتب الفقه بالماركداون)
+          </h2>
+          <p style="font-size: 12px; color: var(--tx-sub); margin-top: 2px;">
+            Paste Markdown tables or lists containing book title, author name, death year, and total volumes. The system automatically parses and presents it in a responsive table for users.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-emerald btn-sm" onclick="loadDefaultFiqhBooks()">
+            📋 Load Built-in 1,193 Fiqh Catalog
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('mdBooksInput').value = ''">
+            🧹 Clear Text
+          </button>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-bottom: 12px;">
+        <div class="form-group">
+          <label>Default Category / Fiqh Madhhab (التصنيف / المذهب)</label>
+          <select id="mdBookCategory" class="select-ctrl">
+            <option value="الفقه الحنفي">الفقه الحنفي (Hanafi)</option>
+            <option value="الفقه الشافعي">الفقه الشافعي (Shafi'i)</option>
+            <option value="الفقه الحنبلي">الفقه الحنبلي (Hanbali)</option>
+            <option value="الفقه المالكي">الفقه المالكي (Maliki)</option>
+            <option value="عام">عام / بحوث تراثية (General)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Import Action Mode</label>
+          <select id="mdImportMode" class="select-ctrl">
+            <option value="append">Append to existing books (إضافة للكتب الحالية)</option>
+            <option value="replace">Replace all books in selected category (استبدال مذهب محدد)</option>
+            <option value="clear_all">Clear all & replace completely (استبدال الكل)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label>Paste Markdown Content (Markdown Tables or Key-Value Lists)</label>
+        <textarea id="mdBooksInput" class="input-ctrl" style="min-height: 140px; font-family: monospace; font-size: 12px; direction: rtl;" placeholder="| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء |
+|---|---|---|---|---|
+| 1 | رد المحتار على الدر المختار | ابن عابدين | 1252 | 12 جزء |
+| 2 | الأصل لمحمد بن الحسن | محمد بن الحسن الشيباني | 189 | 8 مجلدات |"></textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="parseAndImportMarkdownBooks()" style="width: 100%;">
+        ⚡ Parse & Import Markdown Catalog
+      </button>
+    </div>
+
+    <!-- Live Table & Search Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchBooksAdmin" class="input-ctrl" placeholder="🔍 Search books by title, author, death year, category..." oninput="renderBooksAdmin()">
+        <select id="filterBookCatAdmin" class="select-ctrl" style="max-width: 180px;" onchange="renderBooksAdmin()">
+          <option value="ALL">All Categories</option>
+          <option value="الفقه الحنفي">الفقه الحنفي</option>
+          <option value="الفقه الشافعي">الفقه الشافعي</option>
+          <option value="الفقه الحنبلي">الفقه الحنبلي</option>
+          <option value="الفقه المالكي">الفقه المالكي</option>
+          <option value="عام">عام / بحوث تراثية</option>
+        </select>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn btn-primary" onclick="openBookModal()">
+          ➕ Add Single Book
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="exportBooksMarkdown()">
+          📤 Export Markdown
+        </button>
+        <button class="btn btn-emerald btn-sm" onclick="exportBooksCSV()">
+          📥 Export CSV
+        </button>
+        <button class="btn btn-rose btn-sm" onclick="clearAllBooks()">
+          🗑️ Clear All Books
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table" style="direction: rtl;">
+        <thead>
+          <tr>
+            <th style="width: 50px; text-align: center;">#</th>
+            <th style="text-align: right;">اسم الكتاب</th>
+            <th style="text-align: right;">اسم المؤلف</th>
+            <th style="text-align: center;">سنة الوفاة</th>
+            <th style="text-align: center;">عدد الأجزاء</th>
+            <th style="text-align: center;">التصنيف / المذهب</th>
+            <th style="text-align: left;">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="booksTableBodyAdmin"></tbody>
+      </table>
+    </div>
+  </section>
+
   <!-- ════════════ TAB 4: BACKUP & RESTORE ════════════ -->
   <section id="tab-backup" class="tab-content">
     <div class="toolbar" style="max-width: 650px; margin: 0 auto; flex-direction: column; align-items: stretch; gap: 20px;">
@@ -1003,6 +1107,53 @@ body {
   </div>
 </div>
 
+<!-- ════════════ MODAL: ADD/EDIT BOOK ════════════ -->
+<div id="modalBook" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalBookTitle">➕ Add New Book</h3>
+      <button class="btn btn-secondary btn-icon" onclick="closeBookModal()">✕</button>
+    </div>
+    <div class="modal-body" style="direction: rtl;">
+      <input type="hidden" id="bookEditId">
+      <div class="form-group">
+        <label style="text-align: right;">اسم الكتاب (Book Title) *</label>
+        <input type="text" id="bookEditTitle" class="input-ctrl" placeholder="مثال: رد المحتار على الدر المختار">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label style="text-align: right;">اسم المؤلف (Author Name)</label>
+          <input type="text" id="bookEditAuthor" class="input-ctrl" placeholder="مثال: ابن عابدين">
+        </div>
+        <div class="form-group">
+          <label style="text-align: right;">سنة وفاة المؤلف (Death Year)</label>
+          <input type="text" id="bookEditDeathYear" class="input-ctrl" placeholder="مثال: 1252 أو غير مذكور">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label style="text-align: right;">عدد الأجزاء / المجلدات (Volumes)</label>
+          <input type="text" id="bookEditVolumes" class="input-ctrl" placeholder="مثال: 1 (مكتمل) أو 12 جزء">
+        </div>
+        <div class="form-group">
+          <label style="text-align: right;">التصنيف / المذهب (Category)</label>
+          <select id="bookEditCategory" class="select-ctrl">
+            <option value="الفقه الحنفي">الفقه الحنفي</option>
+            <option value="الفقه الشافعي">الفقه الشافعي</option>
+            <option value="الفقه الحنبلي">الفقه الحنبلي</option>
+            <option value="الفقه المالكي">الفقه المالكي</option>
+            <option value="عام">عام / بحوث تراثية</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeBookModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBookModal()">💾 Save Book</button>
+    </div>
+  </div>
+</div>
+
 <!-- ════════════ MODAL: ADD/EDIT USER ════════════ -->
 <div id="modalUser" class="modal-overlay">
   <div class="modal-box">
@@ -1011,32 +1162,26 @@ body {
       <button class="btn btn-secondary btn-icon" onclick="closeUserModal()">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="userEditId">
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Username *</label>
-          <input type="text" id="userNameInput" class="input-ctrl" placeholder="e.g. farooq_ai">
-        </div>
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="userFullName" class="input-ctrl" placeholder="e.g. Dr. Farooq Ahmad">
-        </div>
-      </div>
-
+      <input type="hidden" id="userId">
       <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="userEmail" class="input-ctrl" placeholder="user@example.com">
+        <label>Username *</label>
+        <input type="text" id="userUsername" class="input-ctrl" placeholder="e.g. jsmith">
       </div>
-
       <div class="form-group">
-        <label>Password *</label>
+        <label>Full Name *</label>
+        <input type="text" id="userFullName" class="input-ctrl" placeholder="e.g. Dr. John Smith">
+      </div>
+      <div class="form-group">
+        <label>Email Address *</label>
+        <input type="email" id="userEmail" class="input-ctrl" placeholder="jsmith@example.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
         <div style="display: flex; gap: 8px;">
           <input type="text" id="userPass" class="input-ctrl" placeholder="Assign password...">
           <button type="button" class="btn btn-secondary btn-sm" onclick="generateRandomPass()">Generate</button>
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>Role</label>
@@ -1173,7 +1318,7 @@ body {
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Edition (الطبعة)</label>
+<label>Edition (الطبعة)</label>
           <input type="text" id="sbEdition" class="input-ctrl" placeholder="e.g. الثالثة">
         </div>
         <div class="form-group">
@@ -1214,6 +1359,7 @@ const K = {
   CATS: 'at_cats',
   MAINCATS: 'at_mcats',
   USERS: 'at_users',
+  BOOKS: 'at_books_catalog',
   CU: 'at_cu',
   PASS: 'at_pass',
   SETT: 'at_sett'
@@ -1224,6 +1370,7 @@ let state = {
   cards: [],
   users: [],
   mainCats: [],
+  booksCatalog: [],
   pass: 'admin@hub2024'
 };
 
@@ -1253,6 +1400,7 @@ function toast(msg, type = 'success') {
 function init() {
   loadData();
   renderCards();
+  renderBooksAdmin();
   renderUsers();
   updateStats();
 }
@@ -1261,6 +1409,7 @@ function loadData() {
   state.cards = jp(K.NB) || [];
   state.users = jp(K.USERS) || getDefaultUsers();
   state.mainCats = jp(K.MAINCATS) || [];
+  state.booksCatalog = jp(K.BOOKS) || [];
   state.pass = localStorage.getItem(K.PASS) || 'admin@hub2024';
 
   // Ensure default admin user exists if array empty
@@ -1276,12 +1425,22 @@ function loadData() {
   ])];
 
   const catSelect = document.getElementById('filterCardCat');
-  catSelect.innerHTML = '<option value="ALL">All Categories</option>' + 
-    catNames.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (catSelect) {
+    catSelect.innerHTML = '<option value="ALL">All Categories<\/option>' + 
+      catNames.map(c => `<option value="${c}">${c}<\/option>`).join('');
+  }
 
   const datalist = document.getElementById('catList');
-  datalist.innerHTML = catNames.map(c => `<option value="${c}">`).join('');
+  if (datalist) datalist.innerHTML = catNames.map(c => `<option value="${c}">`).join('');
 }
+
+
+
+
+
+
+
+
 
 function getDefaultUsers() {
   return [
@@ -1358,55 +1517,55 @@ function renderCards() {
 
   const grid = document.getElementById('cardsGrid');
   if (filtered.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--tx-sub); background: var(--bg-card); border-radius: var(--radius-md);">No resource cards found matching your search.</div>`;
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--tx-sub); background: var(--bg-card); border-radius: var(--radius-md);">No resource cards found matching your search.<\/div>`;
     return;
   }
 
   grid.innerHTML = filtered.map(card => `
     <div class="card-item ${!card.visible ? 'hidden-card' : ''}">
       <div class="card-header">
-        <div class="card-icon">${card.icon || '📖'}</div>
+        <div class="card-icon">${card.icon || '📖'}<\/div>
         <div class="card-info">
-          <div class="card-title">${escapeHtml(card.title || 'Untitled Card')}</div>
-          <span class="card-cat">${escapeHtml(card.cat || 'General')}</span>
-        </div>
-      </div>
+          <div class="card-title">${escapeHtml(card.title || 'Untitled Card')}<\/div>
+          <span class="card-cat">${escapeHtml(card.cat || 'General')}<\/span>
+        <\/div>
+      <\/div>
 
-      <div class="card-desc">${escapeHtml(card.desc || 'No description provided.')}</div>
+      <div class="card-desc">${escapeHtml(card.desc || 'No description provided.')}<\/div>
 
       <div class="card-links">
         <div class="link-row">
-          <span class="link-label">🔗 NotebookLM:</span>
-          ${card.link ? `<a href="${card.link}" target="_blank" class="link-val" title="${card.link}">${card.link}</a>` : `<span style="color:var(--tx-muted)">Not set</span>`}
-        </div>
+          <span class="link-label">🔗 NotebookLM:<\/span>
+          ${card.link ? `<a href="${card.link}" target="_blank" class="link-val" title="${card.link}">${card.link}<\/a>` : `<span style="color:var(--tx-muted)">Not set<\/span>`}
+        <\/div>
         <div class="link-row">
-          <span class="link-label">📁 Drive:</span>
-          ${card.driveLink ? `<a href="${card.driveLink}" target="_blank" class="link-val" title="${card.driveLink}">${card.driveLink}</a>` : `<span style="color:var(--tx-muted)">Not set</span>`}
-        </div>
+          <span class="link-label">📁 Drive:<\/span>
+          ${card.driveLink ? `<a href="${card.driveLink}" target="_blank" class="link-val" title="${card.driveLink}">${card.driveLink}<\/a>` : `<span style="color:var(--tx-muted)">Not set<\/span>`}
+        <\/div>
         <div class="link-row">
-          <span class="link-label">📄 PDF File:</span>
-          ${card.pdfLink ? `<a href="${card.pdfLink}" target="_blank" class="link-val" title="${card.pdfLink}">${card.pdfLink}</a>` : `<span style="color:var(--tx-muted)">Not set</span>`}
-        </div>
-      </div>
+          <span class="link-label">📄 PDF File:<\/span>
+          ${card.pdfLink ? `<a href="${card.pdfLink}" target="_blank" class="link-val" title="${card.pdfLink}">${card.pdfLink}<\/a>` : `<span style="color:var(--tx-muted)">Not set<\/span>`}
+        <\/div>
+      <\/div>
 
       <div class="card-footer">
         <span class="badge ${card.visible ? 'badge-active' : 'badge-hidden'}">
           ${card.visible ? '👁️ Active' : '🙈 Hidden'}
-        </span>
+        <\/span>
 
         <div style="display: flex; gap: 4px;">
           <button class="btn btn-secondary btn-xs" onclick="toggleCardVisibility('${card.id}')" title="${card.visible ? 'Hide Card' : 'Show Card'}">
             ${card.visible ? '🙈 Hide' : '👁️ Show'}
-          </button>
+          <\/button>
           <button class="btn btn-emerald btn-xs" onclick="openCardModal('${card.id}')">
             ✏️ Edit
-          </button>
+          <\/button>
           <button class="btn btn-rose btn-xs" onclick="deleteCard('${card.id}')">
             🗑️ Delete
-          </button>
-        </div>
-      </div>
-    </div>
+          <\/button>
+        <\/div>
+      <\/div>
+    <\/div>
   `).join('');
 }
 
@@ -1541,7 +1700,7 @@ function renderUsers() {
 
   const tbody = document.getElementById('usersTableBody');
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--tx-sub);">No user accounts found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--tx-sub);">No user accounts found.<\/td><\/tr>`;
     return;
   }
 
@@ -1549,44 +1708,44 @@ function renderUsers() {
     <tr>
       <td>
         <div class="user-cell">
-          <div class="user-avatar">${(user.username || 'U')[0].toUpperCase()}</div>
+          <div class="user-avatar">${(user.username || 'U')[0].toUpperCase()}<\/div>
           <div class="user-meta">
-            <h4>${escapeHtml(user.fullName || user.username)}</h4>
-            <span>@${escapeHtml(user.username)} · ${escapeHtml(user.email || 'No email')}</span>
-          </div>
-        </div>
-      </td>
+            <h4>${escapeHtml(user.fullName || user.username)}<\/h4>
+            <span>@${escapeHtml(user.username)} · ${escapeHtml(user.email || 'No email')}<\/span>
+          <\/div>
+        <\/div>
+      <\/td>
       <td>
         <span class="badge" style="background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3);">
           ${user.role || 'User'}
-        </span>
-      </td>
+        <\/span>
+      <\/td>
       <td>
         <div style="display: flex; align-items: center; gap: 6px;">
           <input type="password" value="${escapeHtml(user.password || '')}" readonly style="background:transparent; border:none; color:var(--tx-sub); width:110px; font-family:monospace;" id="pwd_${user.id}">
-          <button class="btn btn-secondary btn-xs" onclick="togglePasswordVisibility('pwd_${user.id}')">👁️</button>
-        </div>
-      </td>
+          <button class="btn btn-secondary btn-xs" onclick="togglePasswordVisibility('pwd_${user.id}')">👁️<\/button>
+        <\/div>
+      <\/td>
       <td>
         <span class="badge ${user.status === 'Banned' ? 'badge-banned' : 'badge-active'}">
           ${user.status === 'Banned' ? '⛔ Banned' : '✅ Active'}
-        </span>
-      </td>
-      <td style="font-size: 11px; color: var(--tx-sub);">${user.createdAt || 'N/A'}</td>
+        <\/span>
+      <\/td>
+      <td style="font-size: 11px; color: var(--tx-sub);">${user.createdAt || 'N/A'}<\/td>
       <td style="text-align: right;">
         <div style="display: flex; gap: 4px; justify-content: flex-end;">
           <button class="btn ${user.status === 'Banned' ? 'btn-emerald' : 'btn-amber'} btn-xs" onclick="toggleUserBan('${user.id}')">
             ${user.status === 'Banned' ? '✅ Unban' : '⛔ Ban'}
-          </button>
+          <\/button>
           <button class="btn btn-secondary btn-xs" onclick="openUserModal('${user.id}')">
             ✏️ Edit
-          </button>
+          <\/button>
           <button class="btn btn-rose btn-xs" onclick="deleteUser('${user.id}')">
             🗑️ Delete
-          </button>
-        </div>
-      </td>
-    </tr>
+          <\/button>
+        <\/div>
+      <\/td>
+    <\/tr>
   `).join('');
 }
 
@@ -1811,7 +1970,7 @@ function importBackupJSON(e) {
 }
 
 function escapeHtml(str) {
-  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(str || '').replace(/&/g, '&amp;').replace(/[\x3c]/g, '&lt;').replace(/[\x3e]/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // Run on page load
