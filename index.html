@@ -389,7 +389,7 @@
 }
 
 /* ─── BASE ─── */
-html{scroll-behavior:smooth;scroll-padding-top:70px;scrollbar-width:thin;scrollbar-color:var(--bd3) transparent;overscroll-behavior-y:contain}
+html{scroll-padding-top:70px;scrollbar-width:thin;scrollbar-color:var(--bd3) transparent;-webkit-overflow-scrolling:touch}
 body{
   font-family:var(--font-en);
   background:var(--bg);
@@ -399,7 +399,8 @@ body{
   line-height:1.5;
   transition:background .4s,color .4s;
   -webkit-font-smoothing:antialiased;
-  overscroll-behavior-y:contain; /* stop the mobile "pull down to refresh" gesture from reloading the whole app */
+  touch-action:manipulation;
+  overflow-x:hidden;
 }
 .ur{font-family:var(--font-ur);direction:rtl;line-height:2.2}
 .ar{font-family:var(--font-ar);direction:rtl;line-height:2.6;font-size:1.18em}
@@ -3773,22 +3774,42 @@ function initHorizontalDragScroll() {
   document.querySelectorAll('.cat-nav-scroll, #heroQuickCatPills, .tab-strip, .stats-nb-tbl-wrap').forEach(el => {
     if (!el || el.dataset.dragInit) return;
     el.dataset.dragInit = 'true';
-    let isDown = false, startX, scrollLeft;
+    let isDown = false, startX, scrollLeft, dragged = false;
+
     el.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
       isDown = true;
+      dragged = false;
       startX = e.pageX - el.offsetLeft;
       scrollLeft = el.scrollLeft;
-      el.style.cursor = 'grabbing';
     });
+
     el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = ''; });
     el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = ''; });
+    
     el.addEventListener('mousemove', (e) => {
       if (!isDown) return;
-      e.preventDefault();
       const x = e.pageX - el.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      el.scrollLeft = scrollLeft - walk;
+      const walk = (x - startX) * 1.6;
+      if (Math.abs(x - startX) > 4) {
+        dragged = true;
+        el.style.cursor = 'grabbing';
+        el.scrollLeft = scrollLeft - walk;
+      }
     });
+
+    // Smart wheel horizontal scroll conversion only when scrolling sideways
+    el.addEventListener('wheel', (e) => {
+      if (e.shiftKey || (Math.abs(e.deltaX) > Math.abs(e.deltaY))) {
+        return;
+      }
+      const canScrollLeft = el.scrollLeft > 0;
+      const canScrollRight = el.scrollLeft < (el.scrollWidth - el.clientWidth - 2);
+      if ((e.deltaY > 0 && canScrollRight) || (e.deltaY < 0 && canScrollLeft)) {
+        el.scrollLeft += e.deltaY * 0.9;
+        e.preventDefault();
+      }
+    }, { passive: false });
   });
 }
 

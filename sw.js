@@ -6,7 +6,7 @@
    - skipWaiting() + clients.claim() for instant update on all devices
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'muhaqqiq-ai-cache-v7.0-scroll-opt';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v8.0-fluid-scroll';
 const CORE_ASSETS = [
   './',
   './index.html',
