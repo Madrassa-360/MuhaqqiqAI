@@ -648,6 +648,9 @@ body{
 @media (max-width:640px){
   .adv-srch-grid{grid-template-columns:1fr 1fr}
   .adv-srch-grid-narrow{grid-template-columns:1fr 1fr}
+  #v-books > div { padding: 12px 8px !important; }
+  #v-books .srch-input, #v-books .fc { max-width: 100% !important; flex: 1 1 100% !important; }
+  #v-books table th, #v-books table td { padding: 8px 10px !important; font-size: 12px !important; }
 }
 @media (max-width:420px){
   .adv-srch-grid,.adv-srch-grid-narrow{grid-template-columns:1fr}
@@ -3142,20 +3145,20 @@ html, body {
     </div>
 
     <!-- Interactive Books Data Table -->
-    <div style="overflow-x: auto; background: var(--sur); border: 1px solid var(--bd); border-radius: var(--r-lg); box-shadow: var(--sh0);">
-      <table style="width: 100%; border-collapse: collapse; text-align: right; font-family: var(--font-ar); font-size: 13px;">
+    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--sur); border: 1px solid var(--bd); border-radius: var(--r-lg); box-shadow: var(--sh0);">
+      <table style="width: 100%; min-width: 960px; border-collapse: collapse; text-align: right; font-family: var(--font-ar); font-size: 13px;">
         <thead>
-          <tr style="background: var(--sur2); border-bottom: 1px solid var(--bd2); color: var(--tx2);">
-            <th style="padding: 12px 14px; width: 50px; text-align: center;">#</th>
-            <th style="padding: 12px 14px;">اسم الكتاب</th>
-            <th style="padding: 12px 14px;">اسم المؤلف</th>
-            <th style="padding: 12px 14px; text-align: center;">سنة الوفاة</th>
-            <th style="padding: 12px 14px; text-align: center;">عدد الأجزاء</th>
-            <th style="padding: 12px 14px;">تحقيق / مرتب</th>
-            <th style="padding: 12px 14px;">الناشر</th>
-            <th style="padding: 12px 14px; text-align: center;">الطبعة</th>
-            <th style="padding: 12px 14px; text-align: center;">سنة الطباعة</th>
-            <th style="padding: 12px 14px; text-align: center;">المذهب / التصنيف</th>
+          <tr style="background: var(--sur2); border-bottom: 1px solid var(--bd2); color: var(--tx2); white-space: nowrap;">
+            <th style="padding: 12px 14px; width: 45px; text-align: center;">#</th>
+            <th style="padding: 12px 14px; min-width: 180px;">اسم الكتاب</th>
+            <th style="padding: 12px 14px; min-width: 150px;">اسم المؤلف</th>
+            <th style="padding: 12px 14px; text-align: center; min-width: 95px;">سنة الوفاة</th>
+            <th style="padding: 12px 14px; text-align: center; min-width: 95px;">عدد الأجزاء</th>
+            <th style="padding: 12px 14px; min-width: 130px;">تحقيق / مرتب</th>
+            <th style="padding: 12px 14px; min-width: 130px;">الناشر</th>
+            <th style="padding: 12px 14px; text-align: center; min-width: 95px;">الطبعة</th>
+            <th style="padding: 12px 14px; text-align: center; min-width: 110px;">سنة الطباعة</th>
+            <th style="padding: 12px 14px; text-align: center; min-width: 125px;">المذهب / التصنيف</th>
           </tr>
         </thead>
         <tbody id="userBooksTableBody"></tbody>
@@ -4746,16 +4749,16 @@ async function renderUserBooksTable() {
 
   tbody.innerHTML = filtered.map((b, i) => `
     <tr style="border-bottom: 1px solid var(--bd); transition: background 0.2s;" onmouseover="this.style.background='var(--illum)'" onmouseout="this.style.background='transparent'">
-      <td style="padding: 12px 14px; text-align: center; color: var(--tx3); font-weight: 600;">${i + 1}</td>
-      <td style="padding: 12px 14px; font-weight: 700; color: var(--tx); font-size: 14px;">${esc(b.title || '')}</td>
-      <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.author || 'غير محدد')}</td>
-      <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: var(--gl3);">${esc(b.deathYear || 'غير مذكور')}</td>
-      <td style="padding: 12px 14px; text-align: center;"><span style="background: var(--illum); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: var(--tx); border: 1px solid var(--bd);">${esc(b.volumes || '1')}</span></td>
-      <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.tahqeeq || 'غير محدد')}</td>
-      <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.publisher || 'غير مذكور')}</td>
-      <td style="padding: 12px 14px; text-align: center; color: var(--tx2);">${esc(b.edition || 'غير مذكور')}</td>
-      <td style="padding: 12px 14px; text-align: center; color: var(--tx3);">${esc(b.pubYear || 'غير مذكور')}</td>
-      <td style="padding: 12px 14px; text-align: center;"><span style="background: var(--illum2); color: var(--gl3); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; border: 1px solid var(--bd2);">${esc(b.category || 'عام')}</span></td>
+      <td style="padding: 10px 12px; text-align: center; color: var(--tx3); font-weight: 600; white-space: nowrap;">${i + 1}</td>
+      <td style="padding: 10px 12px; font-weight: 700; color: var(--tx); font-size: 13.5px; line-height: 1.4;">${esc(b.title || '')}</td>
+      <td style="padding: 10px 12px; color: var(--tx2); font-size: 12.5px;">${esc(b.author || 'غير محدد')}</td>
+      <td style="padding: 10px 12px; text-align: center; font-weight: 700; color: var(--gl3); white-space: nowrap;">${esc(b.deathYear || 'غير مذكور')}</td>
+      <td style="padding: 10px 12px; text-align: center; white-space: nowrap;"><span style="background: var(--illum); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: var(--tx); border: 1px solid var(--bd); font-weight: 600;">${esc(b.volumes || '1')}</span></td>
+      <td style="padding: 10px 12px; color: var(--tx2); font-size: 12px;">${esc(b.tahqeeq || 'غير محدد')}</td>
+      <td style="padding: 10px 12px; color: var(--tx2); font-size: 12px;">${esc(b.publisher || 'غير مذكور')}</td>
+      <td style="padding: 10px 12px; text-align: center; color: var(--tx2); white-space: nowrap; font-size: 12px;">${esc(b.edition || 'غير مذكور')}</td>
+      <td style="padding: 10px 12px; text-align: center; color: var(--tx3); white-space: nowrap; font-size: 12px;">${esc(b.pubYear || 'غير مذكور')}</td>
+      <td style="padding: 10px 12px; text-align: center; white-space: nowrap;"><span style="background: var(--illum2); color: var(--gl3); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; border: 1px solid var(--bd2);">${esc(b.category || 'عام')}</span></td>
     </tr>
   `).join('');
 }

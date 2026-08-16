@@ -992,21 +992,21 @@ body {
       </div>
     </div>
 
-    <div class="table-container">
-      <table class="data-table" style="direction: rtl;">
+    <div class="table-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+      <table class="data-table" style="direction: rtl; width: 100%; min-width: 980px;">
         <thead>
-          <tr>
-            <th style="width: 50px; text-align: center;">#</th>
-            <th style="text-align: right;">اسم الكتاب</th>
-            <th style="text-align: right;">اسم المؤلف</th>
-            <th style="text-align: center;">سنة الوفاة</th>
-            <th style="text-align: center;">عدد الأجزاء</th>
-            <th style="text-align: right;">تحقيق / مرتب</th>
-            <th style="text-align: right;">الناشر</th>
-            <th style="text-align: center;">الطبعة</th>
-            <th style="text-align: center;">سنة الطباعة</th>
-            <th style="text-align: center;">التصنيف / المذهب</th>
-            <th style="text-align: left;">إجراءات</th>
+          <tr style="white-space: nowrap;">
+            <th style="width: 45px; text-align: center;">#</th>
+            <th style="text-align: right; min-width: 180px;">اسم الكتاب</th>
+            <th style="text-align: right; min-width: 150px;">اسم المؤلف</th>
+            <th style="text-align: center; min-width: 95px;">سنة الوفاة</th>
+            <th style="text-align: center; min-width: 95px;">عدد الأجزاء</th>
+            <th style="text-align: right; min-width: 130px;">تحقيق / مرتب</th>
+            <th style="text-align: right; min-width: 130px;">الناشر</th>
+            <th style="text-align: center; min-width: 95px;">الطبعة</th>
+            <th style="text-align: center; min-width: 110px;">سنة الطباعة</th>
+            <th style="text-align: center; min-width: 125px;">التصنيف / المذهب</th>
+            <th style="text-align: left; min-width: 110px;">إجراءات</th>
           </tr>
         </thead>
         <tbody id="booksTableBodyAdmin"></tbody>
@@ -2424,17 +2424,17 @@ function renderBooksAdmin() {
 
   tbody.innerHTML = displayList.map((b, i) => `
     <tr>
-      <td style="text-align: center; color: var(--tx-sub); font-weight: 600;">${i + 1}</td>
-      <td style="font-weight: 700; color: var(--tx-main); font-size: 14px;">${escapeHtml(b.title || '')}</td>
-      <td style="color: var(--tx-sub);">${escapeHtml(b.author || 'غير محدد')}</td>
-      <td style="text-align: center; font-weight: 600; color: #a5b4fc;">${escapeHtml(b.deathYear || 'غير مذكور')}</td>
-      <td style="text-align: center;"><span class="badge" style="background: rgba(255,255,255,0.06); color: var(--tx-sub);">${escapeHtml(b.volumes || '1')}</span></td>
-      <td style="color: var(--tx-sub);">${escapeHtml(b.tahqeeq || 'تحقيق علمي معتمد')}</td>
-      <td style="color: var(--tx-sub);">${escapeHtml(b.publisher || 'دار الكتب والتراث الإسلامي')}</td>
-      <td style="text-align: center; color: var(--tx-sub);">${escapeHtml(b.edition || 'طبعة معتمدة ومحققة')}</td>
-      <td style="text-align: center; color: var(--tx-sub);">${escapeHtml(b.pubYear || '1420 هـ / 1999 م')}</td>
-      <td style="text-align: center;"><span class="badge badge-active">${escapeHtml(b.category || 'عام')}</span></td>
-      <td style="text-align: left;">
+      <td style="text-align: center; color: var(--tx-sub); font-weight: 600; white-space: nowrap;">${i + 1}</td>
+      <td style="font-weight: 700; color: var(--tx-main); font-size: 13.5px; line-height: 1.4;">${escapeHtml(b.title || '')}</td>
+      <td style="color: var(--tx-sub); font-size: 12.5px;">${escapeHtml(b.author || 'غير محدد')}</td>
+      <td style="text-align: center; font-weight: 600; color: #a5b4fc; white-space: nowrap;">${escapeHtml(b.deathYear || 'غير مذكور')}</td>
+      <td style="text-align: center; white-space: nowrap;"><span class="badge" style="background: rgba(255,255,255,0.06); color: var(--tx-sub);">${escapeHtml(b.volumes || '1')}</span></td>
+      <td style="color: var(--tx-sub); font-size: 12px;">${escapeHtml(b.tahqeeq || 'تحقيق علمي معتمد')}</td>
+      <td style="color: var(--tx-sub); font-size: 12px;">${escapeHtml(b.publisher || 'دار الكتب والتراث الإسلامي')}</td>
+      <td style="text-align: center; color: var(--tx-sub); white-space: nowrap; font-size: 12px;">${escapeHtml(b.edition || 'طبعة معتمدة ومحققة')}</td>
+      <td style="text-align: center; color: var(--tx-sub); white-space: nowrap; font-size: 12px;">${escapeHtml(b.pubYear || '1420 هـ / 1999 م')}</td>
+      <td style="text-align: center; white-space: nowrap;"><span class="badge badge-active">${escapeHtml(b.category || 'عام')}</span></td>
+      <td style="text-align: left; white-space: nowrap;">
         <div style="display: flex; gap: 4px; justify-content: flex-end;">
           <button class="btn btn-secondary btn-xs" onclick="openBookModal('${b.id || i}')">✏️ Edit</button>
           <button class="btn btn-rose btn-xs" onclick="deleteBookAdmin('${b.id || i}')">🗑️ Delete</button>
