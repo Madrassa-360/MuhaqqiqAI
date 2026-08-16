@@ -1166,10 +1166,10 @@ body {
       <button class="btn btn-secondary btn-icon" onclick="closeUserModal()">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="userId">
+      <input type="hidden" id="userEditId">
       <div class="form-group">
         <label>Username *</label>
-        <input type="text" id="userUsername" class="input-ctrl" placeholder="e.g. jsmith">
+        <input type="text" id="userNameInput" class="input-ctrl" placeholder="e.g. jsmith">
       </div>
       <div class="form-group">
         <label>Full Name *</label>
@@ -1803,6 +1803,11 @@ function togglePasswordVisibility(id) {
 function toggleUserBan(id) {
   const user = state.users.find(u => u.id === id);
   if (!user) return;
+
+  if (user.username === 'admin' || user.id === 'usr_admin') {
+    alert('⛔ Action Denied: The Super Administrator account cannot be banned.');
+    return;
+  }
   
   user.status = user.status === 'Banned' ? 'Active' : 'Banned';
   sp(K.USERS, state.users);
@@ -1867,7 +1872,7 @@ function saveUser() {
     id: id || uid(),
     username: username,
     fullName: document.getElementById('userFullName').value.trim() || username,
-    email: document.getElementById('userEmail').value.trim(),
+    email: document.getElementById('userEmail').value.trim() || `${username}@user.com`,
     password: password,
     role: document.getElementById('userRole').value,
     status: document.getElementById('userStatus').value,
@@ -1876,8 +1881,13 @@ function saveUser() {
 
   if (id) {
     const idx = state.users.findIndex(u => u.id === id);
-    if (idx !== -1) state.users[idx] = userData;
+    if (idx !== -1) state.users[idx] = { ...state.users[idx], ...userData };
   } else {
+    const existing = state.users.find(u => u.username && u.username.toLowerCase() === username);
+    if (existing) {
+      alert(`⚠️ The username "@${username}" is already registered. Please choose a different username.`);
+      return;
+    }
     state.users.push(userData);
   }
 
@@ -1885,19 +1895,25 @@ function saveUser() {
   closeUserModal();
   renderUsers();
   updateStats();
-  toast(`User account saved!`);
+  toast(`User account @${username} saved successfully!`);
 }
 
 function deleteUser(id) {
   const user = state.users.find(u => u.id === id);
   if (!user) return;
+
+  if (user.username === 'admin' || user.id === 'usr_admin') {
+    alert('⛔ Action Denied: The Super Administrator account cannot be deleted.');
+    return;
+  }
+
   if (!confirm(`Are you sure you want to delete user "@${user.username}"?`)) return;
 
   state.users = state.users.filter(u => u.id !== id);
   sp(K.USERS, state.users);
   renderUsers();
   updateStats();
-  toast('User account deleted', 'error');
+  toast(`User account @${user.username} deleted`, 'error');
 }
 
 // ════════════ BOOKS CATALOG & MARKDOWN IMPORTER ════════════
