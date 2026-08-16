@@ -716,7 +716,10 @@ body {
         <button class="btn btn-primary" onclick="openCardModal()">
           ➕ Add New Card
         </button>
-        <button class="btn btn-emerald btn-sm" onclick="setAllCardsVisibility(true)">
+        <button class="btn btn-emerald btn-sm" onclick="loadAppConfigInitial(true)">
+          📋 Load Default Cards
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="setAllCardsVisibility(true)">
           👁️ Show All
         </button>
         <button class="btn btn-amber btn-sm" onclick="setAllCardsVisibility(false)">
@@ -1418,8 +1421,8 @@ function toast(msg, type = 'success') {
     setTimeout(() => div.remove(), 300);
   }, 3000);
 }
-function init() {
-  loadData();
+async function init() {
+  await loadData();
   renderCards();
   renderCategories();
   renderBooksAdmin();
@@ -1471,33 +1474,37 @@ function loadDefaultFiqhBooks(force = false) {
     .catch(err => console.error('Error loading default_books.json:', err));
 }
 
-function loadAppConfigInitial() {
-  fetch('./app_config.json?v=' + Date.now())
+function loadAppConfigInitial(force = false) {
+  return fetch('./app_config.json?v=' + Date.now())
     .then(res => res.ok ? res.json() : null)
     .then(data => {
-      if (!data) return;
-      if (Array.isArray(data.cards) && data.cards.length > 0 && state.cards.length === 0) {
+      if (!data) return null;
+      if (Array.isArray(data.cards) && data.cards.length > 0 && (force || state.cards.length === 0)) {
         state.cards = data.cards;
         sp(K.NB, state.cards);
         renderCards();
       }
-      if (Array.isArray(data.mainCats) && data.mainCats.length > 0 && state.mainCats.length === 0) {
+      if (Array.isArray(data.mainCats) && data.mainCats.length > 0 && (force || state.mainCats.length === 0)) {
         state.mainCats = data.mainCats;
         sp(K.MAINCATS, state.mainCats);
         renderCategories();
       }
       populateBooksCategoryDropdowns();
-      if (Array.isArray(data.users) && data.users.length > 0 && state.users.length === 0) {
+      if (Array.isArray(data.users) && data.users.length > 0 && (force || state.users.length === 0)) {
         state.users = data.users;
         sp(K.USERS, state.users);
         renderUsers();
       }
       updateStats();
+      if (force && typeof toast === 'function') {
+        toast(`✅ Loaded ${state.cards.length} resource cards from App Config!`);
+      }
+      return data;
     })
     .catch(err => console.error('Error loading app_config.json:', err));
 }
 
-function loadData() {
+async function loadData() {
   state.cards = jp(K.NB) || [];
   state.users = jp(K.USERS) || getDefaultUsers();
   state.mainCats = jp(K.MAINCATS) || [];
@@ -1505,14 +1512,14 @@ function loadData() {
   state.pass = localStorage.getItem(K.PASS) || 'Bismillah';
   state.sett = jp(K.SETT) || {};
 
+  // Ensure default cards & main categories loaded if empty
+  if (state.cards.length === 0 || state.mainCats.length === 0) {
+    await loadAppConfigInitial(true);
+  }
+
   // Ensure built-in 1,193 books catalog loaded if empty or outdated
   if (state.booksCatalog.length < 1193) {
     loadDefaultFiqhBooks(true);
-  }
-
-  // Ensure default cards & main categories loaded if empty
-  if (state.cards.length === 0 || state.mainCats.length === 0) {
-    loadAppConfigInitial();
   }
 
   // Ensure default admin user exists if array empty
@@ -1888,7 +1895,17 @@ function renderCards() {
 
   const grid = document.getElementById('cardsGrid');
   if (filtered.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--tx-sub); background: var(--bg-card); border-radius: var(--radius-md);">No resource cards found matching your search.<\/div>`;
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; color: var(--tx-sub); background: var(--bg-card); border-radius: var(--radius-md); border: 1px dashed rgba(255,255,255,0.12);">
+        <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+        <div style="font-size: 15px; font-weight: 700; color: var(--tx-main); margin-bottom: 6px;">No resource cards found matching your search.</div>
+        <div style="font-size: 12px; color: var(--tx-sub); margin-bottom: 16px;">If your cards catalog is empty, click below to restore all 12+ default resource cards from the hub config.</div>
+        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-emerald btn-sm" onclick="loadAppConfigInitial(true)">📋 Load 12+ Default Cards</button>
+          <button class="btn btn-primary btn-sm" onclick="openCardModal()">➕ Add New Card</button>
+        </div>
+      </div>
+    `;
     return;
   }
 
