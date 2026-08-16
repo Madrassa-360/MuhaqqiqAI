@@ -1435,7 +1435,7 @@ function getDefaultUsers() {
       username: 'admin',
       fullName: 'Super Administrator',
       email: 'admin@al-turath.org',
-      password: localStorage.getItem(K.PASS) || 'admin@hub2024',
+      password: localStorage.getItem(K.PASS) || 'Bismillah',
       role: 'Admin',
       status: 'Active',
       createdAt: '2026-01-01'
@@ -1500,7 +1500,7 @@ function loadData() {
   state.users = jp(K.USERS) || getDefaultUsers();
   state.mainCats = jp(K.MAINCATS) || [];
   state.booksCatalog = jp(K.BOOKS) || [];
-  state.pass = localStorage.getItem(K.PASS) || 'admin@hub2024';
+  state.pass = localStorage.getItem(K.PASS) || 'Bismillah';
   state.sett = jp(K.SETT) || {};
 
   // Ensure built-in 1,193 books catalog loaded if empty or outdated
@@ -1746,7 +1746,7 @@ function getDefaultUsers() {
       username: 'admin',
       fullName: 'Super Administrator',
       email: 'admin@al-turath.org',
-      password: localStorage.getItem(K.PASS) || 'admin@hub2024',
+      password: localStorage.getItem(K.PASS) || 'Bismillah',
       role: 'Admin',
       status: 'Active',
       createdAt: new Date().toISOString().slice(0, 10)

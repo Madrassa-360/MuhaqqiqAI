@@ -4809,7 +4809,16 @@ function checkAuth(){
     const sp=document.getElementById('splashPwOverlay');if(sp)sp.style.display='none';
   }
   // password screen shown by splash sequence
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
+
 function showUserUI(){
   const u = S.cu;
   if (!u) return;
@@ -7700,10 +7709,10 @@ window.doLogin=function(){
 
   // Load users array from LocalStorage
   const rawUsers = jp(K.USERS) || [];
-  const masterPass = localStorage.getItem(K.PASS) || 'admin@hub2024';
+  const masterPass = localStorage.getItem(K.PASS) || 'Bismillah';
 
   // 1. Master Admin check
-  if ((uVal === 'admin' || uVal === 'master') && pVal === masterPass) {
+  if ((uVal === 'admin' || uVal === 'master') && (pVal === masterPass || _checkPwd(pVal))) {
     S.cu = { id: 'usr_admin', username: 'admin', name: 'Super Administrator', role: 'Admin', status: 'Active' };
     S.adm = true;
     _finishLoginSuccess(S.cu);
