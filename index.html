@@ -7635,6 +7635,43 @@ function _checkPwd(v){
   const n=_normalizePwd(v);
   return !!n && _VALID_PWD_NORM.includes(n);
 }
+window.doAdminLogin = function() {
+  const passIn = document.getElementById('aPass');
+  const alertEl = document.getElementById('aLoginAlert');
+  const pass = (passIn ? passIn.value : '').trim();
+  const masterPass = localStorage.getItem(K.PASS) || 'admin@hub2024';
+
+  if (!pass) {
+    if (alertEl) { alertEl.textContent = '⚠️ Please enter the Admin Password.'; alertEl.style.display = 'block'; }
+    return;
+  }
+
+  if (pass === masterPass || _checkPwd(pass)) {
+    const loginDiv = document.getElementById('aLogin');
+    const panelDiv = document.getElementById('aPanel');
+    if (loginDiv) loginDiv.style.display = 'none';
+    if (panelDiv) panelDiv.style.display = 'block';
+    if (alertEl) alertEl.style.display = 'none';
+    S.adm = true;
+    if (typeof toast === 'function') toast('🔑 Admin Panel unlocked successfully!');
+    if (typeof renderAdmin === 'function') renderAdmin();
+  } else {
+    if (alertEl) { alertEl.textContent = '❌ Incorrect Admin Password. Access Denied.'; alertEl.style.display = 'block'; }
+  }
+};
+
+window.doAdminLogout = function() {
+  const loginDiv = document.getElementById('aLogin');
+  const panelDiv = document.getElementById('aPanel');
+  const passIn = document.getElementById('aPass');
+  const alertEl = document.getElementById('aLoginAlert');
+  if (panelDiv) panelDiv.style.display = 'none';
+  if (loginDiv) loginDiv.style.display = 'flex';
+  if (passIn) passIn.value = '';
+  if (alertEl) alertEl.style.display = 'none';
+  if (typeof toast === 'function') toast('🔒 Logged out of Admin Panel.');
+};
+
 window.doLogin=function(){
   const userIn = document.getElementById('pwUserIn');
   const passIn = document.getElementById('pwInput');
