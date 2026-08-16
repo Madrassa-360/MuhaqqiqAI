@@ -1461,6 +1461,7 @@ function loadDefaultFiqhBooks(force = false) {
         if (force || state.booksCatalog.length < books.length) {
           state.booksCatalog = books;
           sp(K.BOOKS, state.booksCatalog);
+          populateBooksCategoryDropdowns();
           renderBooksAdmin();
           updateStats();
           if (typeof toast === 'function') toast(`✅ Built-in ${books.length.toLocaleString()} books loaded into catalog!`);
@@ -1485,6 +1486,7 @@ function loadAppConfigInitial() {
         sp(K.MAINCATS, state.mainCats);
         renderCategories();
       }
+      populateBooksCategoryDropdowns();
       if (Array.isArray(data.users) && data.users.length > 0 && state.users.length === 0) {
         state.users = data.users;
         sp(K.USERS, state.users);
@@ -1533,6 +1535,76 @@ function loadData() {
 
   const datalist = document.getElementById('catList');
   if (datalist) datalist.innerHTML = catNames.map(c => `<option value="${c}">`).join('');
+
+  populateBooksCategoryDropdowns();
+}
+
+function populateBooksCategoryDropdowns() {
+  const standardCats = [
+    "الفقه الحنفي",
+    "الفقه الشافعي",
+    "الفقه الحنبلي",
+    "الفقه المالكي",
+    "الفقه المقارن",
+    "الفقه المعاصر",
+    "أصول الفقه",
+    "القواعد الفقهية",
+    "الفقه العام",
+    "التفسير وعلوم القرآن",
+    "الحديث الشريف",
+    "العقيدة الإسلامية",
+    "السيرة والتاريخ",
+    "اللغة والأدب",
+    "عام / بحوث تراثية"
+  ];
+
+  const mainCats = (state && state.mainCats) ? state.mainCats : [];
+  const adminCatNames = mainCats
+    .filter(mc => !mc.hidden)
+    .map(mc => (mc.ar || mc.name || '').trim())
+    .filter(Boolean);
+
+  const books = (state && state.booksCatalog) ? state.booksCatalog : [];
+  const bookCatNames = books.map(b => (b.category || '').trim()).filter(Boolean);
+
+  const allCategories = Array.from(new Set([...standardCats, ...adminCatNames, ...bookCatNames]));
+
+  // 1. Markdown Books Catalog Importer Dropdown (#mdBookCategory)
+  const mdSelect = document.getElementById('mdBookCategory');
+  if (mdSelect) {
+    const curVal = mdSelect.value;
+    mdSelect.innerHTML = allCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    if (curVal && allCategories.includes(curVal)) {
+      mdSelect.value = curVal;
+    } else if (allCategories.includes('الفقه الحنفي')) {
+      mdSelect.value = 'الفقه الحنفي';
+    }
+  }
+
+  // 2. Admin Live Table Filter (#filterBookCatAdmin)
+  const filterAdminSelect = document.getElementById('filterBookCatAdmin');
+  if (filterAdminSelect) {
+    const curVal = filterAdminSelect.value || 'ALL';
+    filterAdminSelect.innerHTML = '<option value="ALL">All Categories (جميع التصانيف)</option>' +
+      allCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    filterAdminSelect.value = curVal;
+  }
+
+  // 3. Add Single Book Modal Dropdown (#sbCategory)
+  const sbSelect = document.getElementById('sbCategory');
+  if (sbSelect) {
+    const curVal = sbSelect.value;
+    sbSelect.innerHTML = allCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    if (curVal && allCategories.includes(curVal)) sbSelect.value = curVal;
+  }
+
+  // 4. Edit Book Modal Dropdown (#bookEditCategory)
+  const editSelect = document.getElementById('bookEditCategory');
+  if (editSelect) {
+    const curVal = editSelect.value;
+    editSelect.innerHTML = allCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    if (curVal && allCategories.includes(curVal)) editSelect.value = curVal;
+  }
 }
 
 function updateStats() {

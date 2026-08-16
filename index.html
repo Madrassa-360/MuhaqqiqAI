@@ -4719,8 +4719,51 @@ async function getUserBooksCatalog() {
   return _userBooksCatalog;
 }
 
+function populateUserBooksCategoryDropdown(books) {
+  const select = document.getElementById('filterBookCategoryUser');
+  if (!select) return;
+
+  const standardCats = [
+    "الفقه الحنفي",
+    "الفقه الشافعي",
+    "الفقه الحنبلي",
+    "الفقه المالكي",
+    "الفقه المقارن",
+    "الفقه المعاصر",
+    "أصول الفقه",
+    "القواعد الفقهية",
+    "الفقه العام",
+    "التفسير وعلوم القرآن",
+    "الحديث الشريف",
+    "العقيدة الإسلامية",
+    "السيرة والتاريخ",
+    "اللغة والأدب",
+    "عام / بحوث تراثية"
+  ];
+
+  const mainCats = (typeof S !== 'undefined' && S.mainCats) ? S.mainCats : [];
+  const adminCatNames = mainCats
+    .filter(mc => !mc.hidden)
+    .map(mc => (mc.ar || mc.name || '').trim())
+    .filter(Boolean);
+
+  const bookCatNames = (books || []).map(b => (b.category || '').trim()).filter(Boolean);
+  const allCategories = Array.from(new Set([...standardCats, ...adminCatNames, ...bookCatNames]));
+
+  const curVal = select.value || 'ALL';
+  const existingOptionValues = Array.from(select.options).map(o => o.value);
+  if (existingOptionValues.length !== allCategories.length + 1) {
+    select.innerHTML = '<option value="ALL">جميع المذاهب والتصانيف</option>' +
+      allCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    if (curVal && (curVal === 'ALL' || allCategories.includes(curVal))) {
+      select.value = curVal;
+    }
+  }
+}
+
 async function renderUserBooksTable() {
   const books = await getUserBooksCatalog();
+  populateUserBooksCategoryDropdown(books);
   const search = (document.getElementById('searchBooksUser')?.value || '').toLowerCase().trim();
   const catFilter = document.getElementById('filterBookCategoryUser')?.value || 'ALL';
 
