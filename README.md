@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://Madrassa-360.github.io/MuhaqqiqAI/"><img src="https://img.shields.io/badge/Live_App-Online-10b981?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Live Demo"></a>
-  <a href="https://Madrassa-360.github.io/MuhaqqiqAI/admin_manager.html"><img src="https://img.shields.io/badge/Admin_Portal-Active-ea580c?style=for-the-badge&logo=speedtest&logoColor=white" alt="Admin Portal"></a>
+  <a href="https://muhaqqiq-ai.github.io/"><img src="https://img.shields.io/badge/Live_App-Online-10b981?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Live Demo"></a>
+  <a href="https://muhaqqiq-ai.github.io/admin_manager.html"><img src="https://img.shields.io/badge/Admin_Portal-Active-ea580c?style=for-the-badge&logo=speedtest&logoColor=white" alt="Admin Portal"></a>
   <img src="https://img.shields.io/badge/PWA-Ready-6366f1?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Ready">
   <img src="https://img.shields.io/badge/Language-Arabic%20%7C%20Urdu%20%7C%20English-f59e0b?style=for-the-badge" alt="Multi-Language">
 </p>
@@ -43,9 +43,9 @@
 
 | Application Interface | URL |
 |---|---|
-| 🌐 **Main Research Web App** | [https://Madrassa-360.github.io/MuhaqqiqAI/](https://Madrassa-360.github.io/MuhaqqiqAI/) |
-| 🛠️ **Admin & User Management Portal** | [https://Madrassa-360.github.io/MuhaqqiqAI/admin_manager.html](https://Madrassa-360.github.io/MuhaqqiqAI/admin_manager.html) |
-| 📦 **GitHub Repository** | [https://github.com/Madrassa-360/MuhaqqiqAI](https://github.com/Madrassa-360/MuhaqqiqAI) |
+| 🌐 **Main Research Web App** | [https://muhaqqiq-ai.github.io/](https://muhaqqiq-ai.github.io/) |
+| 🛠️ **Admin & User Management Portal** | [https://muhaqqiq-ai.github.io/admin_manager.html](https://muhaqqiq-ai.github.io/admin_manager.html) |
+| 📦 **GitHub Repository** | [https://github.com/muhaqqiq-ai/muhaqqiq-ai.github.io](https://github.com/muhaqqiq-ai/muhaqqiq-ai.github.io) |
 
 ---
 
@@ -74,8 +74,8 @@ No complex build step or `npm install` is required. The project is built using p
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Madrassa-360/MuhaqqiqAI.git
-   cd MuhaqqiqAI
+   git clone https://github.com/muhaqqiq-ai/muhaqqiq-ai.github.io.git
+   cd muhaqqiq-ai.github.io
    ```
 
 2. **Run a local web server:**

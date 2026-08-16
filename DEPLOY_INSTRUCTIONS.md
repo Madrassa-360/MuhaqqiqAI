@@ -1,9 +1,9 @@
 # Muhaqqiq AI — GitHub Pages Deployment & Management Guide
 
 ## 1. Project Overview & Repository Details
-- **GitHub Repository:** [https://github.com/Madrassa-360/MuhaqqiqAI](https://github.com/Madrassa-360/MuhaqqiqAI)
-- **Live Application Link:** [https://Madrassa-360.github.io/MuhaqqiqAI/](https://Madrassa-360.github.io/MuhaqqiqAI/)
-- **Admin & Resource Manager:** [https://Madrassa-360.github.io/MuhaqqiqAI/admin_manager.html](https://Madrassa-360.github.io/MuhaqqiqAI/admin_manager.html)
+- **GitHub Repository:** [https://github.com/muhaqqiq-ai/muhaqqiq-ai.github.io](https://github.com/muhaqqiq-ai/muhaqqiq-ai.github.io)
+- **Live Application Link:** [https://muhaqqiq-ai.github.io/](https://muhaqqiq-ai.github.io/)
+- **Admin & Resource Manager:** [https://muhaqqiq-ai.github.io/admin_manager.html](https://muhaqqiq-ai.github.io/admin_manager.html)
 
 ---
 
@@ -27,7 +27,7 @@
 ## 3. How to Deploy & Activate GitHub Pages
 
 1. Navigate to repository settings:  
-   👉 `https://github.com/Madrassa-360/MuhaqqiqAI/settings/pages`
+   👉 `https://github.com/muhaqqiq-ai/muhaqqiq-ai.github.io/settings/pages`
 2. Under **Build and deployment** → **Source**:
    - Select **Deploy from a branch**.
    - **Branch:** Choose `main`.
