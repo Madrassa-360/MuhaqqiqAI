@@ -1981,11 +1981,17 @@ function deleteCard(id) {
 
 // ════════════ USER MANAGEMENT LOGIC ════════════
 function renderUsers() {
-  const search = document.getElementById('searchUsers').value.toLowerCase().trim();
-  const roleFilter = document.getElementById('filterUserRole').value;
-  const statusFilter = document.getElementById('filterUserStatus').value;
+  const totalUsers = (state.users || []).length;
+  const tabCountUsers = document.getElementById('tabCountUsers');
+  if (tabCountUsers) tabCountUsers.textContent = totalUsers;
+  const statUsersTotal = document.getElementById('statUsersTotal');
+  if (statUsersTotal) statUsersTotal.textContent = totalUsers;
 
-  const filtered = state.users.filter(user => {
+  const search = (document.getElementById('searchUsers')?.value || '').toLowerCase().trim();
+  const roleFilter = document.getElementById('filterUserRole')?.value || 'ALL';
+  const statusFilter = document.getElementById('filterUserStatus')?.value || 'ALL';
+
+  const filtered = (state.users || []).filter(user => {
     const matchSearch = !search ||
       (user.username && user.username.toLowerCase().includes(search)) ||
       (user.fullName && user.fullName.toLowerCase().includes(search)) ||
@@ -1998,8 +2004,10 @@ function renderUsers() {
   });
 
   const tbody = document.getElementById('usersTableBody');
+  if (!tbody) return;
+
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--tx-sub);">No user accounts found.<\/td><\/tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--tx-sub);">No user accounts found.</td></tr>`;
     return;
   }
 
