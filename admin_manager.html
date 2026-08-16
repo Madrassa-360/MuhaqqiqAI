@@ -1434,7 +1434,7 @@ function getDefaultUsers() {
     {
       id: 'usr_researcher',
       username: 'researcher',
-      fullName: 'Islamic Scholar & Researcher',
+      fullName: 'Senior Islamic Researcher',
       email: 'researcher@al-turath.org',
       password: 'researcherpass123',
       role: 'Researcher',
@@ -1444,6 +1444,48 @@ function getDefaultUsers() {
   ];
 }
 
+function loadDefaultFiqhBooks(force = false) {
+  fetch('./default_books.json?v=' + Date.now())
+    .then(res => res.ok ? res.json() : [])
+    .then(books => {
+      if (Array.isArray(books) && books.length > 0) {
+        if (force || state.booksCatalog.length < books.length) {
+          state.booksCatalog = books;
+          sp(K.BOOKS, state.booksCatalog);
+          renderBooksAdmin();
+          updateStats();
+          if (typeof toast === 'function') toast(`✅ Built-in ${books.length.toLocaleString()} books loaded into catalog!`);
+        }
+      }
+    })
+    .catch(err => console.error('Error loading default_books.json:', err));
+}
+
+function loadAppConfigInitial() {
+  fetch('./app_config.json?v=' + Date.now())
+    .then(res => res.ok ? res.json() : null)
+    .then(data => {
+      if (!data) return;
+      if (Array.isArray(data.cards) && data.cards.length > 0 && state.cards.length === 0) {
+        state.cards = data.cards;
+        sp(K.NB, state.cards);
+        renderCards();
+      }
+      if (Array.isArray(data.mainCats) && data.mainCats.length > 0 && state.mainCats.length === 0) {
+        state.mainCats = data.mainCats;
+        sp(K.MAINCATS, state.mainCats);
+        renderCategories();
+      }
+      if (Array.isArray(data.users) && data.users.length > 0 && state.users.length === 0) {
+        state.users = data.users;
+        sp(K.USERS, state.users);
+        renderUsers();
+      }
+      updateStats();
+    })
+    .catch(err => console.error('Error loading app_config.json:', err));
+}
+
 function loadData() {
   state.cards = jp(K.NB) || [];
   state.users = jp(K.USERS) || getDefaultUsers();
@@ -1451,9 +1493,14 @@ function loadData() {
   state.booksCatalog = jp(K.BOOKS) || [];
   state.pass = localStorage.getItem(K.PASS) || 'admin@hub2024';
 
-  // Ensure default books catalog loaded if empty
-  if (state.booksCatalog.length === 0) {
-    loadDefaultFiqhBooks();
+  // Ensure built-in 1,193 books catalog loaded if empty or outdated
+  if (state.booksCatalog.length < 1193) {
+    loadDefaultFiqhBooks(true);
+  }
+
+  // Ensure default cards & main categories loaded if empty
+  if (state.cards.length === 0 || state.mainCats.length === 0) {
+    loadAppConfigInitial();
   }
 
   // Ensure default admin user exists if array empty
