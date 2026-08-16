@@ -1,7 +1,7 @@
 {
   "app": "Muhaqqiq AI",
   "version": "1.0.0",
-  "updatedAt": "2026-08-15T19:30:00.000Z",
+  "updatedAt": "2026-08-16T01:28:25.425Z",
   "cards": [
     {
       "id": "mslr7cindntv",
@@ -18145,9 +18145,321 @@
       "username": "admin",
       "fullName": "Super Administrator",
       "email": "admin@al-turath.org",
+      "password": "admin@hub2024",
       "role": "Admin",
-      "status": "Active"
+      "status": "Active",
+      "createdAt": "2026-08-16"
+    },
+    {
+      "id": "usr_researcher1",
+      "username": "researcher",
+      "fullName": "Senior Islamic Researcher",
+      "email": "researcher@al-turath.org",
+      "password": "researcherpass123",
+      "role": "Researcher",
+      "status": "Active",
+      "createdAt": "2026-08-16"
     }
   ],
-  "mainCats": []
+  "mainCats": [
+    {
+      "id": "mspnt1mgkgok",
+      "icon": "📖",
+      "name": "Al-Qur’an",
+      "ar": "القرآن الكريم",
+      "order": 1
+    },
+    {
+      "id": "mspnt1mgxglb",
+      "icon": "📜",
+      "name": "Al-Hadith",
+      "ar": "الحديث النبوي",
+      "order": 2
+    },
+    {
+      "id": "mspnt1mgs6op",
+      "icon": "🌟",
+      "name": "Islamic Creed",
+      "ar": "العقيدة",
+      "order": 3
+    },
+    {
+      "id": "mspnt1mgkr1u",
+      "icon": "🕋",
+      "name": "Prophetic Biography",
+      "ar": "السيرة النبوية",
+      "order": 4
+    },
+    {
+      "id": "mspnt1mg9ang",
+      "icon": "✍️",
+      "name": "History",
+      "ar": "التاريخ",
+      "order": 5
+    },
+    {
+      "id": "mspnt1mg22pe",
+      "icon": "⚖️",
+      "name": "Islamic Fiqh",
+      "ar": "الفقه الإسلامي",
+      "order": 6
+    },
+    {
+      "id": "mspnt1mgoppy",
+      "icon": "🏛️",
+      "name": "Islamic Governance & Judiciary",
+      "ar": "السياسة الشرعية والقضاء",
+      "order": 7
+    },
+    {
+      "id": "mspnt1mg1l8e",
+      "icon": "👥",
+      "name": "Biographies of Scholars & Narrators",
+      "ar": "تراجم الأعلام والرواة",
+      "order": 8
+    },
+    {
+      "id": "mspnt1mg846t",
+      "icon": "🌳",
+      "name": "Genealogy",
+      "ar": "الأنساب",
+      "order": 9
+    },
+    {
+      "id": "mspnt1mgfou8",
+      "icon": "🗺️",
+      "name": "Geography & Travelogues",
+      "ar": "البلدان والرحلات",
+      "order": 10
+    },
+    {
+      "id": "mspnt1mg6jil",
+      "icon": "🌍",
+      "name": "Orientalism",
+      "ar": "الاستشراق",
+      "order": 11
+    },
+    {
+      "id": "mspnt1mgh5e5",
+      "icon": "📇",
+      "name": "Book Indexes & Bibliographic Guides",
+      "ar": "فهارس الكتب والأدلة",
+      "order": 12
+    },
+    {
+      "id": "mspnt1mgci0z",
+      "icon": "🗂️",
+      "name": "Comprehensive Works",
+      "ar": "الجوامع",
+      "order": 13
+    },
+    {
+      "id": "mspnt1mgemy2",
+      "icon": "💎",
+      "name": "Spirituality, Ethics & Adhkar",
+      "ar": "الرقائق والآداب والأذكار",
+      "order": 14
+    },
+    {
+      "id": "mspnt1mg5asm",
+      "icon": "🌐",
+      "name": "Comparative Religion",
+      "ar": "مقارنة الأديان",
+      "order": 15
+    },
+    {
+      "id": "mspnt1mgt0hc",
+      "icon": "📝",
+      "name": "Arabic Language & Literature",
+      "ar": "اللغة العربية والأدب",
+      "order": 16
+    },
+    {
+      "id": "mspnt1mgyiyp",
+      "icon": "🩺",
+      "name": "Medicine",
+      "ar": "الطب",
+      "order": 18
+    },
+    {
+      "id": "mspnt1mgqd5n",
+      "icon": "🌿",
+      "name": "Other Sciences",
+      "ar": "علوم أخرى",
+      "order": 19
+    },
+    {
+      "id": "mspnt1mgvrbn",
+      "icon": "📚",
+      "name": "General Books",
+      "ar": "كتب عامة",
+      "order": 20
+    },
+    {
+      "id": "mspnt1mgoy5l",
+      "icon": "🧠",
+      "name": "Logic & Philosophy",
+      "ar": "المنطق والفلسفة",
+      "order": 17
+    }
+  ],
+  "settings": {
+    "appName": "Muhaqqiq AI — المحقق الذكي",
+    "siteSubtitle": "المكتبة الرقمية والشروح والتحقيقات الإسلامية",
+    "heroTitle": "Muhaqqiq AI",
+    "heroSubAr": "الأرشيف المنهجي الذكي للمراجع والكتب الإسلامية والبحوث التراثية",
+    "heroSubEn": "AI-Powered Classical Reference & Research Notebook Hub for Islamic Scholars",
+    "heroDesc": "منصة ذكية جامعة لبطاقات ومصادر المكتبات الإسلامية والشروح والتحقيقات والكتب النادرة",
+    "announcementText": "مرحباً بكم في منصة المحقق الذكي — تم تحديث البيانات وقائمة الكتب!",
+    "announcementVisible": true,
+    "contactEmail": "contact@al-turath.org",
+    "footerText": "جميع الحقوق محفوظة — منصة المحقق الذكي لمكتبة التراث © 2026",
+    "theme": "peach-soft"
+  },
+  "catMap": {
+    "Al-Qur’an": [
+      "Al-Qur’an",
+      "Al-Qur'an",
+      "Tafseer",
+      "Uloom al-Quran",
+      "Qira'at",
+      "Asbab al-Nuzul",
+      "Gharib al-Quran",
+      "I'rab al-Quran",
+      "Nasikh wa Mansukh"
+    ],
+    "Al-Hadith": [
+      "Al-Hadith",
+      "Hadith",
+      "Hadith Collections",
+      "Sharh al-Hadith",
+      "Ulum al-Hadith",
+      "Asma al-Rijal",
+      "Jarh wa Ta'dil",
+      "Takhrij",
+      "Mustalah al-Hadith",
+      "Usool al-Hadith"
+    ],
+    "Islamic Fiqh": [
+      "Islamic Fiqh",
+      "Fiqh",
+      "Hanafi Fiqh",
+      "Shafi'i Fiqh",
+      "Maliki Fiqh",
+      "Hanbali Fiqh",
+      "Comparative Fiqh",
+      "Contemporary Fiqh",
+      "Qawa'id Fiqhiyyah",
+      "Usool al-Fiqh"
+    ],
+    "Islamic Creed": [
+      "Islamic Creed",
+      "Aqeedah"
+    ],
+    "Prophetic Biography": [
+      "Prophetic Biography",
+      "Seerah"
+    ],
+    "History": [
+      "History",
+      "Islamic History"
+    ],
+    "Comparative Religion": [
+      "Comparative Religion"
+    ],
+    "Orientalism": [
+      "Orientalism",
+      "Orientalism (Istishraq)"
+    ],
+    "Arabic Language & Literature": [
+      "Arabic Language & Literature",
+      "Arabic Language",
+      "Arabic Literature"
+    ],
+    "Islamic Governance & Judiciary": [
+      "Islamic Governance & Judiciary",
+      "Islamic Politics",
+      "Islamic Thought",
+      "Dawah & Tabligh"
+    ],
+    "Genealogy": [
+      "Genealogy"
+    ],
+    "Geography & Travelogues": [
+      "Geography & Travelogues"
+    ],
+    "Biographies of Scholars & Narrators": [
+      "Biographies of Scholars & Narrators",
+      "Biography & Tabaqat"
+    ],
+    "Book Indexes & Bibliographic Guides": [
+      "Book Indexes & Bibliographic Guides"
+    ],
+    "Comprehensive Works": [
+      "Comprehensive Works"
+    ],
+    "Spirituality, Ethics & Adhkar": [
+      "Spirituality, Ethics & Adhkar",
+      "Tasawwuf"
+    ],
+    "Medicine": [
+      "Medicine"
+    ],
+    "Other Sciences": [
+      "Other Sciences",
+      "Manuscripts"
+    ],
+    "General Books": [
+      "General Books",
+      "Islamic Studies",
+      "Other"
+    ],
+    "Logic & Philosophy": [
+      "Logic & Philosophy"
+    ]
+  },
+  "subCatAr": {
+    "Tafseer": "التفسير",
+    "Uloom al-Quran": "علوم القرآن",
+    "Qira'at": "القراءات",
+    "Asbab al-Nuzul": "أسباب النزول",
+    "Gharib al-Quran": "غريب القرآن",
+    "I'rab al-Quran": "إعراب القرآن",
+    "Nasikh wa Mansukh": "الناسخ والمنسوخ",
+    "Hadith": "الحديث",
+    "Hadith Collections": "كتب الحديث",
+    "Sharh al-Hadith": "شرح الحديث",
+    "Ulum al-Hadith": "علوم الحديث",
+    "Asma al-Rijal": "أسماء الرجال",
+    "Jarh wa Ta'dil": "الجرح والتعديل",
+    "Takhrij": "التخريج",
+    "Mustalah al-Hadith": "مصطلح الحديث",
+    "Usool al-Hadith": "أصول الحديث",
+    "Fiqh": "الفقه",
+    "Hanafi Fiqh": "الفقه الحنفي",
+    "Shafi'i Fiqh": "الفقه الشافعي",
+    "Maliki Fiqh": "الفقه المالكي",
+    "Hanbali Fiqh": "الفقه الحنبلي",
+    "Comparative Fiqh": "الفقه المقارن",
+    "Contemporary Fiqh": "الفقه المعاصر",
+    "Qawa'id Fiqhiyyah": "القواعد الفقهية",
+    "Usool al-Fiqh": "أصول الفقه",
+    "Aqeedah": "العقيدة",
+    "Seerah": "السيرة النبوية",
+    "Islamic History": "التاريخ الإسلامي",
+    "Tasawwuf": "التصوف",
+    "Comparative Religion": "مقارنة الأديان",
+    "Orientalism": "الاستشراق",
+    "Arabic Language": "اللغة العربية",
+    "Arabic Literature": "الأدب العربي",
+    "Islamic Thought": "الفكر الإسلامي",
+    "Dawah & Tabligh": "الدعوة والتبليغ",
+    "Islamic Economics": "الاقتصاد الإسلامي",
+    "Islamic Politics": "السياسة الشرعية",
+    "Fatwa & Ifta": "الفتوى والإفتاء",
+    "Biography & Tabaqat": "التراجم والطبقات",
+    "Manuscripts": "المخطوطات",
+    "Islamic Studies": "الدراسات الإسلامية",
+    "Other": "أخرى"
+  }
 }

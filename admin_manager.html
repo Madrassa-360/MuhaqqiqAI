@@ -200,6 +200,14 @@ body {
   border-color: rgba(244, 63, 94, 0.3);
   color: var(--rose);
 }
+.btn-indigo {
+  background: var(--indigo-bg);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--indigo);
+}
+.btn-indigo:hover {
+  background: rgba(99, 102, 241, 0.25);
+}
 .btn-rose:hover {
   background: rgba(244, 63, 94, 0.25);
 }
@@ -715,6 +723,112 @@ body {
     <div id="cardsGrid" class="cards-grid"></div>
   </section>
 
+  <!-- ════════════ TAB: CATEGORIES MANAGER ════════════ -->
+  <section id="tab-categories" class="tab-content">
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchCats" class="input-ctrl" placeholder="🔍 Search main categories by name or Arabic title..." oninput="renderCategories()">
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn btn-primary" onclick="openMainCatModal()">
+          ➕ Add Main Category
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Icon</th>
+            <th>Category Name (English)</th>
+            <th>Arabic Title (العنوان بالعربية)</th>
+            <th>Display Order</th>
+            <th>Mapped Notebook Cards</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="catsTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ════════════ TAB: SITE SETTINGS & BRANDING ════════════ -->
+  <section id="tab-settings" class="tab-content">
+    <div class="toolbar" style="max-width: 750px; margin: 0 auto; flex-direction: column; align-items: stretch; gap: 20px;">
+      <h2 style="font-size: 18px; font-weight: 700; color: #fff;">⚙️ Site Branding & General Settings</h2>
+      <p style="font-size: 13px; color: var(--tx-sub);">Customize all site headers, sub-headings, announcements, contact email, theme, and footer copyright text across Muhaqqiq AI instantly.</p>
+
+      <div class="form-group">
+        <label>App Name / Title</label>
+        <input type="text" id="settAppName" class="input-ctrl" placeholder="e.g. Muhaqqiq AI — المحقق الذكي">
+      </div>
+
+      <div class="form-group">
+        <label>Site Subtitle / Tagline</label>
+        <input type="text" id="settSiteSubtitle" class="input-ctrl" placeholder="e.g. المكتبة الرقمية والشروح والتحقيقات الإسلامية">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hero Section Heading</label>
+          <input type="text" id="settHeroTitle" class="input-ctrl" placeholder="e.g. Muhaqqiq AI">
+        </div>
+        <div class="form-group">
+          <label>Default Theme</label>
+          <select id="settTheme" class="select-ctrl">
+            <option value="peach-soft">Peach Soft 🍊</option>
+            <option value="emerald-dark">Emerald Night 🌙</option>
+            <option value="lapis-dark">Lapis Dawn 💎</option>
+            <option value="pearl-light">Pearl Light 🤍</option>
+            <option value="rose-gold">Rose Gold 🌹</option>
+            <option value="skyblue-light">Sky Blue 🩵</option>
+            <option value="mint-green">Mint Green 🍃</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Hero Subtitle (Arabic)</label>
+        <input type="text" id="settHeroSubAr" class="input-ctrl" placeholder="e.g. الأرشيف المنهجي الذكي للمراجع والكتب الإسلامية والبحوث التراثية">
+      </div>
+
+      <div class="form-group">
+        <label>Hero Subtitle (English)</label>
+        <input type="text" id="settHeroSubEn" class="input-ctrl" placeholder="e.g. AI-Powered Classical Reference & Research Notebook Hub for Islamic Scholars">
+      </div>
+
+      <div class="form-group">
+        <label>Announcement Banner Text</label>
+        <textarea id="settAnnouncementText" class="input-ctrl" style="min-height: 60px;" placeholder="Announcement message to show at top..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Announcement Visibility</label>
+          <select id="settAnnouncementVisible" class="select-ctrl">
+            <option value="true">Show Announcement Banner ✅</option>
+            <option value="false">Hide Announcement Banner 🙈</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Contact Support Email</label>
+          <input type="email" id="settContactEmail" class="input-ctrl" placeholder="e.g. contact@al-turath.org">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Footer Copyright Text</label>
+        <input type="text" id="settFooterText" class="input-ctrl" placeholder="e.g. جميع الحقوق محفوظة — منصة المحقق الذكي لمكتبة التراث © 2026">
+      </div>
+
+      <button class="btn btn-primary" onclick="saveSiteSettings()" style="margin-top: 10px;">
+        💾 Save Site Settings
+      </button>
+    </div>
+  </section>
+
   <!-- ════════════ TAB 2: USER MANAGEMENT ════════════ -->
   <section id="tab-users" class="tab-content">
     <div class="toolbar">
@@ -945,6 +1059,146 @@ body {
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveUser()">Save User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MODAL: MAIN CATEGORY ════════════ -->
+<div id="modalMainCat" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalCatTitle">📁 Add Main Category</h3>
+      <button class="btn btn-secondary btn-icon" onclick="closeMainCatModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="catEditId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Icon (Emoji)</label>
+          <input type="text" id="catIcon" class="input-ctrl" placeholder="📖" value="📖">
+        </div>
+        <div class="form-group">
+          <label>Display Order</label>
+          <input type="number" id="catOrder" class="input-ctrl" placeholder="1" value="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Name (English Key) *</label>
+        <input type="text" id="catName" class="input-ctrl" placeholder="e.g. Al-Qur’an">
+      </div>
+      <div class="form-group">
+        <label>Arabic Title (العنوان بالعربية) *</label>
+        <input type="text" id="catAr" class="input-ctrl" placeholder="e.g. القرآن الكريم">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeMainCatModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMainCat()">Save Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MODAL: CARD BOOKS MANAGER ════════════ -->
+<div id="modalBooks" class="modal-overlay">
+  <div class="modal-box" style="max-width: 950px; width: 95%;">
+    <div class="modal-header">
+      <h3 id="modalBooksCardTitle">📚 Card Books Manager</h3>
+      <button class="btn btn-secondary btn-icon" onclick="closeBooksModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cardBooksId">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <span style="font-size: 13px; color: var(--tx-sub);">Manage individual book records stored in this card.</span>
+        <button class="btn btn-primary btn-sm" onclick="openSingleBookModal()">➕ Add Book to Card</button>
+      </div>
+
+      <div class="table-container" style="max-height: 450px; overflow-y: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Book Title</th>
+              <th>Author</th>
+              <th>Death Year</th>
+              <th>Tahqeeq</th>
+              <th>Publisher</th>
+              <th>Volumes</th>
+              <th>Lang</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="cardBooksTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeBooksModal()">Close</button>
+      <button class="btn btn-primary" onclick="saveCardBooks()">Save Books to Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MODAL: SINGLE BOOK EDITOR ════════════ -->
+<div id="modalSingleBook" class="modal-overlay">
+  <div class="modal-box" style="max-width: 600px;">
+    <div class="modal-header">
+      <h3 id="modalSingleBookTitle">📖 Edit Book Record</h3>
+      <button class="btn btn-secondary btn-icon" onclick="closeSingleBookModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="singleBookIdx" value="-1">
+      <div class="form-group">
+        <label>Book Title *</label>
+        <input type="text" id="sbTitle" class="input-ctrl" placeholder="e.g. الجامع المسند الصحيح المختصر">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Author Name</label>
+          <input type="text" id="sbAuthor" class="input-ctrl" placeholder="e.g. محمد بن إسماعيل البخاري">
+        </div>
+        <div class="form-group">
+          <label>Death Year (وفاة المؤلف)</label>
+          <input type="text" id="sbDeathYear" class="input-ctrl" placeholder="e.g. 256 ھ / 870 م">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tahqeeq / Researcher</label>
+          <input type="text" id="sbTahqeeq" class="input-ctrl" placeholder="e.g. د. مصطفى ديب البغا">
+        </div>
+        <div class="form-group">
+          <label>Publisher</label>
+          <input type="text" id="sbPublisher" class="input-ctrl" placeholder="e.g. دار ابن كثير">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Edition (الطبعة)</label>
+          <input type="text" id="sbEdition" class="input-ctrl" placeholder="e.g. الثالثة">
+        </div>
+        <div class="form-group">
+          <label>Publication Year (سنة الطبع)</label>
+          <input type="text" id="sbPubYear" class="input-ctrl" placeholder="e.g. 1407 ھ / 1987 م">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Volumes Count</label>
+          <input type="text" id="sbVolumes" class="input-ctrl" placeholder="1" value="1">
+        </div>
+        <div class="form-group">
+          <label>Language</label>
+          <select id="sbLang" class="select-ctrl">
+            <option value="ar">Arabic (عربي)</option>
+            <option value="ur">Urdu (اردو)</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSingleBookModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="applySingleBook()">Save Book</button>
     </div>
   </div>
 </div>
