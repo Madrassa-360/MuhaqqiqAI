@@ -3096,33 +3096,33 @@ html, body {
   <div style="max-width: 1200px; margin: 0 auto; padding: 24px 16px;">
     
     <!-- Hero Header -->
-    <div style="background: linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%); border: 1px solid var(--bd); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden;">
+    <div style="background: linear-gradient(135deg, var(--illum) 0%, var(--sur) 100%); border: 1px solid var(--bd2); border-radius: var(--r-lg); padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: var(--sh1);">
       <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
         <div>
-          <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(20, 184, 166, 0.2); color: var(--g); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 8px;">
+          <div style="display: inline-flex; align-items: center; gap: 6px; background: var(--illum2); color: var(--gl3); border: 1px solid var(--bd2); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 8px;">
             📚 الفهرس التفاعلي الشامل لمهذبات أمهات كتب الفقه
           </div>
-          <h1 style="font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: var(--font-ar);">
+          <h1 style="font-size: 24px; font-weight: 800; color: var(--tx); margin-bottom: 6px; font-family: var(--font-ar);">
             دليل كتب الفقه الإسلامي والمذاهب الأربعة
           </h1>
           <p style="font-size: 13px; color: var(--tx2); max-width: 750px; line-height: 1.6; font-family: var(--font-ar);">
             قائمة استعراض وتحقيق شاملة تضم أسماء الكتب والمؤلفين وسنوات الوفاة وعدد الأجزاء مقسمة حسب المذاهب الفقهية (الحنفي، الشافعي، الحنبلي، المالكي).
           </p>
         </div>
-        <div style="text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--bd); padding: 12px 20px; border-radius: var(--radius-sm);">
-          <div style="font-size: 22px; font-weight: 800; color: var(--g);" id="userBooksTotalBadge">1,193</div>
-          <div style="font-size: 11px; color: var(--tx3); font-family: var(--font-ar);">إجمالي الكتب المحققة</div>
+        <div style="text-align: center; background: var(--sur2); border: 1px solid var(--bd2); padding: 12px 20px; border-radius: var(--r-sm);">
+          <div style="font-size: 22px; font-weight: 800; color: var(--gl3);" id="userBooksTotalBadge">1,193</div>
+          <div style="font-size: 11px; color: var(--tx2); font-family: var(--font-ar);">إجمالي الكتب المحققة</div>
         </div>
       </div>
     </div>
 
     <!-- Search & Filter Controls -->
-    <div style="background: var(--bg-card); border: 1px solid var(--bd); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <div style="background: var(--sur); border: 1px solid var(--bd); border-radius: var(--r-lg); padding: 16px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; box-shadow: var(--sh0);">
       <div style="flex: 1; min-width: 240px; position: relative;">
-        <input type="text" id="searchBooksUser" class="srch-input" style="width: 100%; font-family: var(--font-ar); direction: rtl; padding-right: 14px;" placeholder="🔍 ابحث عن كتاب، مؤلف، سنة وفاة، أو جزء..." oninput="renderUserBooksTable()">
+        <input type="text" id="searchBooksUser" class="srch-input" style="width: 100%; font-family: var(--font-ar); direction: rtl; padding-right: 14px; background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r-sm); color: var(--tx);" placeholder="🔍 ابحث عن كتاب، مؤلف، سنة وفاة، أو جزء..." oninput="renderUserBooksTable()">
       </div>
       
-      <select id="filterBookCategoryUser" class="fc" style="max-width: 200px; font-family: var(--font-ar);" onchange="renderUserBooksTable()">
+      <select id="filterBookCategoryUser" class="fc" style="max-width: 200px; font-family: var(--font-ar); background: var(--bg2); border: 1px solid var(--bd); color: var(--tx);" onchange="renderUserBooksTable()">
         <option value="ALL">جميع المذاهب والتصانيف</option>
         <option value="الفقه الحنفي">الفقه الحنفي</option>
         <option value="الفقه الشافعي">الفقه الشافعي</option>
@@ -3142,10 +3142,10 @@ html, body {
     </div>
 
     <!-- Interactive Books Data Table -->
-    <div style="overflow-x: auto; background: var(--bg-card); border: 1px solid var(--bd); border-radius: var(--radius-md);">
+    <div style="overflow-x: auto; background: var(--sur); border: 1px solid var(--bd); border-radius: var(--r-lg); box-shadow: var(--sh0);">
       <table style="width: 100%; border-collapse: collapse; text-align: right; font-family: var(--font-ar); font-size: 13px;">
         <thead>
-          <tr style="background: rgba(255,255,255,0.04); border-bottom: 1px solid var(--bd); color: var(--tx2);">
+          <tr style="background: var(--sur2); border-bottom: 1px solid var(--bd2); color: var(--tx2);">
             <th style="padding: 12px 14px; width: 50px; text-align: center;">#</th>
             <th style="padding: 12px 14px;">اسم الكتاب</th>
             <th style="padding: 12px 14px;">اسم المؤلف</th>
@@ -4747,15 +4747,15 @@ async function renderUserBooksTable() {
   tbody.innerHTML = filtered.map((b, i) => `
     <tr style="border-bottom: 1px solid var(--bd); transition: background 0.2s;" onmouseover="this.style.background='var(--illum)'" onmouseout="this.style.background='transparent'">
       <td style="padding: 12px 14px; text-align: center; color: var(--tx3); font-weight: 600;">${i + 1}</td>
-      <td style="padding: 12px 14px; font-weight: 700; color: #fff; font-size: 14px;">${esc(b.title || '')}</td>
+      <td style="padding: 12px 14px; font-weight: 700; color: var(--tx); font-size: 14px;">${esc(b.title || '')}</td>
       <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.author || 'غير محدد')}</td>
       <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: var(--gl3);">${esc(b.deathYear || 'غير مذكور')}</td>
-      <td style="padding: 12px 14px; text-align: center;"><span style="background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: var(--tx);">${esc(b.volumes || '1')}</span></td>
+      <td style="padding: 12px 14px; text-align: center;"><span style="background: var(--illum); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: var(--tx); border: 1px solid var(--bd);">${esc(b.volumes || '1')}</span></td>
       <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.tahqeeq || 'غير محدد')}</td>
       <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.publisher || 'غير مذكور')}</td>
       <td style="padding: 12px 14px; text-align: center; color: var(--tx2);">${esc(b.edition || 'غير مذكور')}</td>
       <td style="padding: 12px 14px; text-align: center; color: var(--tx3);">${esc(b.pubYear || 'غير مذكور')}</td>
-      <td style="padding: 12px 14px; text-align: center;"><span style="background: rgba(20, 184, 166, 0.15); color: var(--g); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">${esc(b.category || 'عام')}</span></td>
+      <td style="padding: 12px 14px; text-align: center;"><span style="background: var(--illum2); color: var(--gl3); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; border: 1px solid var(--bd2);">${esc(b.category || 'عام')}</span></td>
     </tr>
   `).join('');
 }
