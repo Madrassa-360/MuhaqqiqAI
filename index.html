@@ -3919,6 +3919,15 @@ const gv=id=>(document.getElementById(id)||{}).value?.trim()||'';
 function isCardVisible(n){
   if(!n)return false;
   if(n.visible===false || n.hidden===true || n.status==='Hidden')return false;
+
+  if (S.mainCats && S.mainCats.length > 0 && n.cat) {
+    const parentCat = S.mainCats.find(mc => 
+      (mc.name && mc.name.toLowerCase() === n.cat.toLowerCase()) ||
+      (mc.ar && mc.ar.toLowerCase() === n.cat.toLowerCase())
+    );
+    if (parentCat && (parentCat.hidden === true || parentCat.visible === false)) return false;
+  }
+
   return true;
 }
 

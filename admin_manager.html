@@ -755,6 +755,7 @@ body {
             <th>Arabic Title (العنوان بالعربية)</th>
             <th>Display Order</th>
             <th>Mapped Notebook Cards</th>
+            <th style="text-align: center;">Status</th>
             <th style="text-align: right;">Actions</th>
           </tr>
         </thead>
@@ -1249,6 +1250,13 @@ body {
         <label>Arabic Title (العنوان بالعربية) *</label>
         <input type="text" id="catAr" class="input-ctrl" placeholder="e.g. القرآن الكريم">
       </div>
+      <div class="form-group">
+        <label>Visibility Status (حالة الظهور)</label>
+        <select id="catHidden" class="select-ctrl">
+          <option value="false">👁️ Visible in Hub (ظاهر للجميع)</option>
+          <option value="true">🙈 Hidden (مخفي)</option>
+        </select>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeMainCatModal()">Cancel</button>
@@ -1670,28 +1678,49 @@ function renderCategories() {
   if (tabCountCats) tabCountCats.textContent = (state.mainCats || []).length;
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--tx-sub);">No main categories found matching your search.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--tx-sub);">No main categories found matching your search.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = filtered.map(mc => {
+    const isHidden = !!mc.hidden;
     const mappedCards = state.cards.filter(c => c.cat && (c.cat.toLowerCase() === (mc.name || '').toLowerCase() || c.cat.toLowerCase() === (mc.ar || '').toLowerCase())).length;
     return `
-      <tr>
+      <tr class="${isHidden ? 'hidden-card' : ''}">
         <td style="font-size: 20px; text-align: center;">${mc.icon || '📖'}</td>
         <td style="font-weight: 700; color: #fff;">${escapeHtml(mc.name || '')}</td>
         <td style="font-family: var(--font-ar); direction: rtl; font-size: 15px; color: #a5b4fc;">${escapeHtml(mc.ar || '')}</td>
         <td style="text-align: center; font-weight: 600;"><span class="badge" style="background: rgba(255,255,255,0.06);">${mc.order || 1}</span></td>
-        <td style="text-align: center;"><span class="badge badge-active">${mappedCards} Notebook Cards</span></td>
+        <td style="text-align: center;"><span class="badge badge-active">${mappedCards} Cards</span></td>
+        <td style="text-align: center;">
+          <span class="badge ${isHidden ? 'badge-hidden' : 'badge-active'}">
+            ${isHidden ? '🙈 Hidden' : '👁️ Active'}
+          </span>
+        </td>
         <td style="text-align: right;">
           <div style="display: flex; gap: 4px; justify-content: flex-end;">
-            <button class="btn btn-secondary btn-xs" onclick="openMainCatModal('${mc.id}')">✏️ Edit</button>
+            <button class="btn btn-secondary btn-xs" onclick="toggleMainCatVisibility('${mc.id}')" title="${isHidden ? 'Show Category' : 'Hide Category'}">
+              ${isHidden ? '👁️ Show' : '🙈 Hide'}
+            </button>
+            <button class="btn btn-emerald btn-xs" onclick="openMainCatModal('${mc.id}')">✏️ Edit</button>
             <button class="btn btn-rose btn-xs" onclick="delMainCat('${mc.id}')">🗑️ Delete</button>
           </div>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function toggleMainCatVisibility(id) {
+  const cat = state.mainCats.find(c => c.id === id);
+  if (!cat) return;
+  cat.hidden = !cat.hidden;
+  sp(K.MAINCATS, state.mainCats);
+  localStorage.setItem('at_last_modified', Date.now().toString());
+  renderCategories();
+  renderCards();
+  updateStats();
+  toast(`Category "${cat.name}" (${cat.ar}) is now ${cat.hidden ? 'Hidden 🙈' : 'Active 👁️'}`);
 }
 
 function openMainCatModal(id = null) {
@@ -1708,6 +1737,7 @@ function openMainCatModal(id = null) {
     document.getElementById('catOrder').value = cat.order || 1;
     document.getElementById('catName').value = cat.name || '';
     document.getElementById('catAr').value = cat.ar || '';
+    document.getElementById('catHidden').value = cat.hidden ? 'true' : 'false';
   } else {
     title.textContent = '📁 Add Main Category';
     document.getElementById('catEditId').value = '';
@@ -1715,6 +1745,7 @@ function openMainCatModal(id = null) {
     document.getElementById('catOrder').value = (state.mainCats.length || 0) + 1;
     document.getElementById('catName').value = '';
     document.getElementById('catAr').value = '';
+    document.getElementById('catHidden').value = 'false';
   }
 
   modal.classList.add('open');
@@ -1740,7 +1771,8 @@ function saveMainCat() {
     icon: document.getElementById('catIcon').value.trim() || '📖',
     order: parseInt(document.getElementById('catOrder').value) || 1,
     name: name,
-    ar: ar
+    ar: ar,
+    hidden: document.getElementById('catHidden').value === 'true'
   };
 
   if (id) {
@@ -1751,6 +1783,7 @@ function saveMainCat() {
   }
 
   sp(K.MAINCATS, state.mainCats);
+  localStorage.setItem('at_last_modified', Date.now().toString());
   closeMainCatModal();
   renderCategories();
   loadData();
