@@ -3909,6 +3909,7 @@ const THEMES=[
 const ICONS=['📖','📗','📘','📙','🕌','🕋','☪️','🌙','⭐','📿','🤲','📜','✍️','🎓','💡','🌍','🔬','📚','✨','🏛️','🌹','📝','🔖','🔍','💎','⚗️','🖊️','📋','🗂️','📊'];
 let S={nbs:[],cats:[],mainCats:[],catMap:{},subCatAr:{},users:[],cu:null,favs:[],notifs:[],sett:{appName:"Muhaqqiq AI",theme:'peach-soft'},adm:false,filt:'all',activeCat:null,activeSubFilt:'all'};
 const jp=k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
+const sp=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){console.error(e)}};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const gv=id=>(document.getElementById(id)||{}).value?.trim()||'';
 
@@ -5956,18 +5957,19 @@ function showQrModal(){
 }
 
 /* ── MOBILE ── */
-function openMob(){document.getElementById('mobDrawer').classList.add('open');}
-function closeMob(){document.getElementById('mobDrawer').classList.remove('open');}
+function openMob(){document.getElementById('mobDrawer')?.classList.add('open');}
+function closeMob(){document.getElementById('mobDrawer')?.classList.remove('open');}
 
 /* ── BANNER ── */
-function showBanner(title){const el=document.getElementById('wBanner');if(!el)return;document.getElementById('wBTitle').textContent=title||'Welcome!';el.style.display='block';setTimeout(()=>{el.style.display='none';},5000);}
+function showBanner(title){const el=document.getElementById('wBanner');if(!el)return;const bt=document.getElementById('wBTitle');if(bt)bt.textContent=title||'Welcome!';el.style.display='block';setTimeout(()=>{el.style.display='none';},5000);}
 
 /* ── MODAL ── */
-function closeMod(id){document.getElementById(id).classList.remove('open');}
+function openMod(id){const el=document.getElementById(id);if(el)el.classList.add('open');}
+function closeMod(id){const el=document.getElementById(id);if(el)el.classList.remove('open');}
 
 /* ── TOAST ── */
 let _tt;
-function toast(msg,type='ok'){const el=document.getElementById('toast');el.className='toast toast-'+type;el.textContent=(type==='err'?'⚠️ ':'✅ ')+msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3200);}
+function toast(msg,type='ok'){const el=document.getElementById('toast');if(!el)return;el.className='toast toast-'+type;el.textContent=(type==='err'?'⚠️ ':'✅ ')+msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3200);}
 
 /* ── TITLE LANGUAGE SELECTOR ── */
 function setTitleLang(lang, btn) {
