@@ -3990,6 +3990,11 @@ function boot(){
   document.addEventListener('keydown',e=>{
     if(e.ctrlKey&&e.shiftKey&&e.key==='A'){e.preventDefault();openAdmin();}
     if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();const s=document.getElementById('srchIn');if(s){s.focus();s.select();}}
+    if(e.key==='/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){
+      e.preventDefault();
+      const s=document.getElementById('srchIn');
+      if(s){ s.focus(); s.select(); s.scrollIntoView({behavior:'smooth',block:'center'}); }
+    }
     if(e.ctrlKey&&e.key==='t'){e.preventDefault();openThemePicker();}
     if(e.key==='Escape'){document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));closeMob();}
   });
@@ -5111,12 +5116,26 @@ function cardH(n,isNew){
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         NotebookLM
       </button>`:''}
+      ${n.link?`<button class="btn btn-ghost btn-xs" onclick="copyCardLink(event,'${esc(n.link)}')" title="Copy Direct Link">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Link
+      </button>`:''}
       <button class="btn btn-primary btn-xs" style="margin-left:auto" onclick="event.stopPropagation();openNB(event,'${n.id}')">
         Details
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
   </div>`;
+}
+
+function copyCardLink(e, link) {
+  if (e) e.stopPropagation();
+  if (!link) return;
+  navigator.clipboard.writeText(link).then(() => {
+    toast('📋 Notebook link copied!');
+  }).catch(() => {
+    toast('📋 Link copied!');
+  });
 }
 /* ── PREVIEW SYSTEM ── */
 let _pvNB=null; // current notebook in preview
@@ -5818,7 +5837,17 @@ function saveSett(){
 
 /* ── THEMES ── */
 function buildThemes(){
-  const h=THEMES.map(t=>`<div class="t-card ${t.id===S.sett.theme?'active':''}" onclick="applyTheme('${t.id}',true)" data-tc="${t.id}"><div class="t-dots">${t.d.map(d=>`<div class="t-dot" style="background:${d}"></div>`).join('')}</div><div class="t-name">${t.n}</div><div class="t-mode">${t.m}</div></div>`).join('');
+  const h=THEMES.map(t=>{
+    const isActive = t.id === S.sett.theme;
+    return `<div class="t-card ${isActive?'active':''}" onclick="applyTheme('${t.id}',true)" data-tc="${t.id}">
+      <div class="t-dots">${t.d.map(d=>`<div class="t-dot" style="background:${d};box-shadow:0 0 5px ${d}88"></div>`).join('')}</div>
+      <div class="t-name">${t.n}</div>
+      <div class="t-mode" style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+        <span>${t.m}</span>
+        ${isActive ? '<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:var(--p);color:#fff;font-weight:700;">Active</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
   ['tGrid','tGridM','themeModGrid'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=h;});
 }
 
