@@ -2195,10 +2195,10 @@ function exportBooksMarkdown() {
     return;
   }
   let md = '# 📚 فهرس كتب الفقه المذهبي\n\n';
-  md += '| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء | التصنيف |\n';
-  md += '|---|---|---|---|---|---|\n';
+  md += '| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء | تحقيق / مرتب | الناشر | الطبعة | سنة الطباعة | التصنيف |\n';
+  md += '|---|---|---|---|---|---|---|---|---|---|\n';
   state.booksCatalog.forEach((b, i) => {
-    md += `| ${i + 1} | **${b.title || ''}** | ${b.author || ''} | ${b.deathYear || ''} | ${b.volumes || ''} | ${b.category || ''} |\n`;
+    md += `| ${i + 1} | **${b.title || ''}** | ${b.author || ''} | ${b.deathYear || ''} | ${b.volumes || ''} | ${b.tahqeeq || 'غير محدد'} | ${b.publisher || 'غير مذكور'} | ${b.edition || 'غير مذكور'} | ${b.pubYear || 'غير مذكور'} | ${b.category || ''} |\n`;
   });
 
   const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
@@ -2216,9 +2216,9 @@ function exportBooksCSV() {
     toast('لا توجد كتب للتصدير', 'error');
     return;
   }
-  let csv = '\uFEFFالتصنيف / المذهب,اسم الكتاب,اسم المؤلف,سنة وفاة المؤلف,عدد الأجزاء\n';
+  let csv = '\uFEFFالتصنيف / المذهب,اسم الكتاب,اسم المؤلف,سنة وفاة المؤلف,عدد الأجزاء,تحقيق / مرتب,الناشر,الطبعة,سنة الطباعة\n';
   state.booksCatalog.forEach(b => {
-    csv += `"${b.category || ''}","${b.title || ''}","${b.author || ''}","${b.deathYear || ''}","${b.volumes || ''}"\n`;
+    csv += `"${b.category || ''}","${b.title || ''}","${b.author || ''}","${b.deathYear || ''}","${b.volumes || ''}","${b.tahqeeq || 'غير محدد'}","${b.publisher || 'غير مذكور'}","${b.edition || 'غير مذكور'}","${b.pubYear || 'غير مذكور'}"\n`;
   });
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });

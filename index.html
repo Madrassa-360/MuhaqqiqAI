@@ -3104,6 +3104,10 @@ html, body {
             <th style="padding: 12px 14px;">اسم المؤلف</th>
             <th style="padding: 12px 14px; text-align: center;">سنة الوفاة</th>
             <th style="padding: 12px 14px; text-align: center;">عدد الأجزاء</th>
+            <th style="padding: 12px 14px;">تحقيق / مرتب</th>
+            <th style="padding: 12px 14px;">الناشر</th>
+            <th style="padding: 12px 14px; text-align: center;">الطبعة</th>
+            <th style="padding: 12px 14px; text-align: center;">سنة الطباعة</th>
             <th style="padding: 12px 14px; text-align: center;">المذهب / التصنيف</th>
           </tr>
         </thead>
@@ -4659,7 +4663,7 @@ async function renderUserBooksTable() {
   if (!tbody) return;
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--tx3);">لم يتم العثور على أي كتب تطابق البحث.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--tx3);">لم يتم العثور على أي كتب تطابق البحث.</td></tr>`;
     return;
   }
 
@@ -4670,6 +4674,10 @@ async function renderUserBooksTable() {
       <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.author || 'غير محدد')}</td>
       <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: var(--gl3);">${esc(b.deathYear || 'غير مذكور')}</td>
       <td style="padding: 12px 14px; text-align: center;"><span style="background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 12px; font-size: 11px; color: var(--tx);">${esc(b.volumes || '1')}</span></td>
+      <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.tahqeeq || 'غير محدد')}</td>
+      <td style="padding: 12px 14px; color: var(--tx2);">${esc(b.publisher || 'غير مذكور')}</td>
+      <td style="padding: 12px 14px; text-align: center; color: var(--tx2);">${esc(b.edition || 'غير مذكور')}</td>
+      <td style="padding: 12px 14px; text-align: center; color: var(--tx3);">${esc(b.pubYear || 'غير مذكور')}</td>
       <td style="padding: 12px 14px; text-align: center;"><span style="background: rgba(20, 184, 166, 0.15); color: var(--g); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">${esc(b.category || 'عام')}</span></td>
     </tr>
   `).join('');
@@ -4682,9 +4690,9 @@ async function exportUserBooksCSV() {
     return;
   }
 
-  let csv = '\uFEFFالتصنيف / المذهب,اسم الكتاب,اسم المؤلف,سنة وفاة المؤلف,عدد الأجزاء\n';
+  let csv = '\uFEFFالتصنيف / المذهب,اسم الكتاب,اسم المؤلف,سنة وفاة المؤلف,عدد الأجزاء,تحقيق / مرتب,الناشر,الطبعة,سنة الطباعة\n';
   books.forEach(b => {
-    csv += `"${b.category || 'عام'}","${b.title || ''}","${b.author || 'غير محدد'}","${b.deathYear || 'غير مذكور'}","${b.volumes || '1'}"\n`;
+    csv += `"${b.category || 'عام'}","${b.title || ''}","${b.author || 'غير محدد'}","${b.deathYear || 'غير مذكور'}","${b.volumes || '1'}","${b.tahqeeq || 'غير محدد'}","${b.publisher || 'غير مذكور'}","${b.edition || 'غير مذكور'}","${b.pubYear || 'غير مذكور'}"\n`;
   });
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -4705,11 +4713,11 @@ async function exportUserBooksMarkdown() {
   }
 
   let md = '# 📚 دليل وكتب الفقه الإسلامي والمذاهب الأربعة\n\n';
-  md += '| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء | التصنيف |\n';
-  md += '|---|---|---|---|---|---|\n';
+  md += '| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء | تحقيق / مرتب | الناشر | الطبعة | سنة الطباعة | التصنيف |\n';
+  md += '|---|---|---|---|---|---|---|---|---|---|\n';
 
   books.forEach((b, i) => {
-    md += `| ${i + 1} | **${b.title}** | ${b.author} | ${b.deathYear} | ${b.volumes} | ${b.category} |\n`;
+    md += `| ${i + 1} | **${b.title}** | ${b.author} | ${b.deathYear} | ${b.volumes} | ${b.tahqeeq || 'غير محدد'} | ${b.publisher || 'غير مذكور'} | ${b.edition || 'غير مذكور'} | ${b.pubYear || 'غير مذكور'} | ${b.category} |\n`;
   });
 
   const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
