@@ -4980,6 +4980,25 @@ function calcLibraryStats(){
   return {notebooks:nbs.length,books:totalBooks,volumes:totalVols,authors:totalAuthors.size,editors:totalEditors.size};
 }
 
+function getNBTotalSources(n) {
+  if (!n) return 0;
+  const manual = parseInt(n.totalSources);
+  if (!isNaN(manual) && manual > 0) return manual;
+
+  let sourceListCount = 0;
+  if (n.sources) {
+    if (Array.isArray(n.sources)) {
+      sourceListCount += n.sources.length;
+    } else if (typeof n.sources === 'object') {
+      if (Array.isArray(n.sources.primary)) sourceListCount += n.sources.primary.length;
+      if (Array.isArray(n.sources.secondary)) sourceListCount += n.sources.secondary.length;
+    }
+  }
+
+  const booksCount = Array.isArray(n.books) ? n.books.length : 0;
+  return Math.max(sourceListCount, booksCount, isNaN(manual) ? 0 : manual, 1);
+}
+
 function updateGlobalBookStats(){
   const s=calcLibraryStats();
   const el=document.getElementById('globalBookStatsInner');
@@ -4995,11 +5014,27 @@ function updateGlobalBookStats(){
     });
   });
 
-  // Sum of manually-entered Total Sources across all visible notebooks
-  const totalSources=visNBs.reduce((sum,n)=>sum+(parseInt(n.totalSources)||0),0);
+  // Sum of Total Sources across all visible notebooks
+  let totalSources=visNBs.reduce((sum,n)=>sum+getNBTotalSources(n),0);
 
-  // Count of research-verified books (same "dash = not verified" rule used
-  // everywhere else) across all visible notebooks.
+  // Include total books catalog count if catalog books exist
+  let catalogCount = 0;
+  if (typeof _userBooksCatalog !== 'undefined' && Array.isArray(_userBooksCatalog) && _userBooksCatalog.length > 0) {
+    catalogCount = _userBooksCatalog.length;
+  } else {
+    try {
+      const stored = localStorage.getItem(K.BOOKS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) catalogCount = parsed.length;
+      }
+    } catch(e){}
+  }
+  if (catalogCount > 0 && totalSources < catalogCount) {
+    totalSources = catalogCount;
+  }
+
+  // Count of research-verified books across all visible notebooks
   const totalVerifiedBooks=visNBs.reduce((sum,n)=>sum+(n.books||[]).filter(b=>hasRealValue(b.tahqeeq)).length,0);
 
   const items=[
@@ -6538,7 +6573,7 @@ function computeFullStats(){
       delete nbStat.notebooks;
       const nbAuthors=new Set();
       const nbResearchers=new Set();
-      nbStat.sources=parseInt(n.totalSources)||0;
+      nbStat.sources=getNBTotalSources(n);
       (n.books||[]).forEach(b=>{
         const vol=parseInt(b.volumes)||0;
         const lang=(b.lang||defLang)==='ur'?'ur':'ar';
