@@ -1998,9 +1998,44 @@ function parseAndImportMarkdownBooks() {
   }
 
   sp(K.BOOKS, state.booksCatalog);
+  syncCatalogBooksToCards();
   renderBooksAdmin();
   updateStats();
   toast(`تم استيراد ${parsedBooks.length.toLocaleString()} كتاب بنجاح!`);
+}
+
+function syncCatalogBooksToCards() {
+  if (!state.cards || !state.booksCatalog) return;
+  let updated = false;
+
+  state.cards.forEach(card => {
+    const cardTitle = (card.title || '').toLowerCase();
+    const cardCat = (card.cat || '').toLowerCase();
+    const cardDesc = (card.desc || '').toLowerCase();
+    const fullText = `${cardTitle} ${cardCat} ${cardDesc}`;
+
+    const matching = state.booksCatalog.filter(b => {
+      const bCat = (b.category || '').toLowerCase();
+      if (!bCat) return false;
+      if (fullText.includes(bCat)) return true;
+      if (bCat.includes('حنفي') && fullText.includes('حنفي')) return true;
+      if (bCat.includes('شافعي') && fullText.includes('شافعي')) return true;
+      if (bCat.includes('حنبلي') && fullText.includes('حنبلي')) return true;
+      if (bCat.includes('مالكي') && fullText.includes('مالكي')) return true;
+      if (bCat.includes('عام') && fullText.includes('عام')) return true;
+      return false;
+    });
+
+    if (matching.length > 0) {
+      card.books = matching;
+      updated = true;
+    }
+  });
+
+  if (updated) {
+    sp(K.NB, state.cards);
+    if (typeof renderCards === 'function') renderCards();
+  }
 }
 
 async function loadDefaultFiqhBooks() {
@@ -2011,6 +2046,7 @@ async function loadDefaultFiqhBooks() {
       if (Array.isArray(data) && data.length > 0) {
         state.booksCatalog = data;
         sp(K.BOOKS, state.booksCatalog);
+        syncCatalogBooksToCards();
         renderBooksAdmin();
         updateStats();
         toast(`تم تحميل الفهرس المدمج (${data.length.toLocaleString()} كتاب) بنجاح!`);

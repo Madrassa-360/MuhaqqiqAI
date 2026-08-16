@@ -5000,6 +5000,48 @@ function closePrev(){
   _pvFilterMode='all';
 }
 
+function getCatalogBooksSync() {
+  if (typeof _userBooksCatalog !== 'undefined' && _userBooksCatalog && _userBooksCatalog.length > 0) return _userBooksCatalog;
+  try {
+    const stored = localStorage.getItem('at_books_catalog');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        _userBooksCatalog = parsed;
+        return _userBooksCatalog;
+      }
+    }
+  } catch(e) {}
+  return _userBooksCatalog || [];
+}
+
+function getCatalogBooksForCard(n) {
+  if (!n) return [];
+  if (n.books && Array.isArray(n.books) && n.books.length > 0) {
+    return n.books;
+  }
+  const catalog = getCatalogBooksSync();
+  if (!catalog || catalog.length === 0) return [];
+
+  const cardTitle = (n.title || '').toLowerCase();
+  const cardCat = (n.cat || '').toLowerCase();
+  const cardLib = (n.libTitle || '').toLowerCase();
+  const cardDesc = (n.desc || '').toLowerCase();
+  const fullText = `${cardTitle} ${cardCat} ${cardLib} ${cardDesc}`;
+
+  return catalog.filter(b => {
+    const bCat = (b.category || '').toLowerCase();
+    if (!bCat) return false;
+    if (fullText.includes(bCat)) return true;
+    if (bCat.includes('حنفي') && fullText.includes('حنفي')) return true;
+    if (bCat.includes('شافعي') && fullText.includes('شافعي')) return true;
+    if (bCat.includes('حنبلي') && fullText.includes('حنبلي')) return true;
+    if (bCat.includes('مالكي') && fullText.includes('مالكي')) return true;
+    if (bCat.includes('عام') && fullText.includes('عام')) return true;
+    return false;
+  });
+}
+
 function showPreview(n,keepFilter){
   if(!keepFilter) _pvFilterMode='all';
   document.getElementById('pvIcon').textContent=n.icon||'📖';
@@ -5031,7 +5073,7 @@ function showPreview(n,keepFilter){
 
   // Build body
   const meta=n.meta||{};
-  const books=n.books||[]; // full, unfiltered list - keep for stat totals and indexOf(edit) lookups
+  const books=(n.books&&n.books.length>0)?n.books:getCatalogBooksForCard(n); // full, unfiltered list - keep for stat totals and indexOf(edit) lookups
   // Which books the tables below actually show - filtered by the active
   // stat-card selection ('all' or 'verified'). Clicking a card only changes
   // this view; the stat numbers above always reflect the real totals.
