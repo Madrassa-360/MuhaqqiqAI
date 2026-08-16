@@ -944,10 +944,10 @@ body {
 
       <div class="form-group" style="margin-bottom: 14px;">
         <label>Paste Markdown Content (Markdown Tables or Key-Value Lists)</label>
-        <textarea id="mdBooksInput" class="input-ctrl" style="min-height: 140px; font-family: monospace; font-size: 12px; direction: rtl;" placeholder="| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء |
-|---|---|---|---|---|
-| 1 | رد المحتار على الدر المختار | ابن عابدين | 1252 | 12 جزء |
-| 2 | الأصل لمحمد بن الحسن | محمد بن الحسن الشيباني | 189 | 8 مجلدات |"></textarea>
+        <textarea id="mdBooksInput" class="input-ctrl" style="min-height: 140px; font-family: monospace; font-size: 12px; direction: rtl;" placeholder="| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء | تحقيق / مرتب | الناشر | الطبعة | سنة الطباعة |
+|---|---|---|---|---|---|---|---|---|
+| 1 | رد المحتار على الدر المختار | ابن عابدين | 1252 | 12 جزء | عادل أحمد عبد الموجود | دار الكتب العلمية | الأولى | 1419 هـ / 1998 م |
+| 2 | الأصل لمحمد بن الحسن | محمد بن الحسن الشيباني | 189 | 8 مجلدات | د. محمد بوينوكالن | دار ابن حزم | الأولى | 1433 هـ / 2012 م |"></textarea>
       </div>
 
       <button class="btn btn-primary" onclick="parseAndImportMarkdownBooks()" style="width: 100%;">
@@ -994,6 +994,10 @@ body {
             <th style="text-align: right;">اسم المؤلف</th>
             <th style="text-align: center;">سنة الوفاة</th>
             <th style="text-align: center;">عدد الأجزاء</th>
+            <th style="text-align: right;">تحقيق / مرتب</th>
+            <th style="text-align: right;">الناشر</th>
+            <th style="text-align: center;">الطبعة</th>
+            <th style="text-align: center;">سنة الطباعة</th>
             <th style="text-align: center;">التصنيف / المذهب</th>
             <th style="text-align: left;">إجراءات</th>
           </tr>
@@ -1330,6 +1334,16 @@ body {
         <div class="form-group">
           <label>Volumes Count</label>
           <input type="text" id="sbVolumes" class="input-ctrl" placeholder="1" value="1">
+        </div>
+        <div class="form-group">
+          <label>Category / Madhhab (التصنيف / المذهب)</label>
+          <select id="sbCategory" class="select-ctrl">
+            <option value="الفقه الحنفي">الفقه الحنفي (Hanafi)</option>
+            <option value="الفقه الشافعي">الفقه الشافعي (Shafi'i)</option>
+            <option value="الفقه الحنبلي">الفقه الحنبلي (Hanbali)</option>
+            <option value="الفقه المالكي">الفقه المالكي (Maliki)</option>
+            <option value="عام">عام / بحوث تراثية (General)</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Language</label>
@@ -1924,14 +1938,18 @@ function parseAndImportMarkdownBooks() {
 
       // Table Header Row Detection
       if (firstCellLower.includes('#') || firstCellLower === 'م' || secondCellLower.includes('اسم الكتاب') || secondCellLower.includes('العنوان') || secondCellLower.includes('title')) {
-        colMap = { id: -1, title: -1, author: -1, deathYear: -1, volumes: -1, category: -1 };
+        colMap = { id: -1, title: -1, author: -1, deathYear: -1, volumes: -1, tahqeeq: -1, publisher: -1, edition: -1, pubYear: -1, category: -1 };
         cells.forEach((cell, idx) => {
           const c = cell.toLowerCase();
           if (c.includes('#') || c === 'م' || c.includes('مجموع')) colMap.id = idx;
           else if (c.includes('كتاب') || c.includes('عنوان') || c.includes('title')) colMap.title = idx;
           else if (c.includes('مؤلف') || c.includes('author')) colMap.author = idx;
-          else if (c.includes('وفاة') || c.includes('سنة') || c.includes('death')) colMap.deathYear = idx;
-          else if (c.includes('أجزاء') || c.includes('مجلد') || c.includes('حجم') || c.includes('volumes')) colMap.volumes = idx;
+          else if (c.includes('وفاة') || c.includes('سنة الوفاة') || c.includes('death')) colMap.deathYear = idx;
+          else if (c.includes('أجزاء') || c.includes('مجلد') || c.includes('volumes')) colMap.volumes = idx;
+          else if (c.includes('تحقيق') || c.includes('مرتب') || c.includes('tahqeeq') || c.includes('editor')) colMap.tahqeeq = idx;
+          else if (c.includes('ناشر') || c.includes('publisher')) colMap.publisher = idx;
+          else if (c.includes('طبعة') || c.includes('edition')) colMap.edition = idx;
+          else if (c.includes('سنة الطباعة') || c.includes('تاريخ الطباعة') || c.includes('pubyear') || c.includes('سنة النشر')) colMap.pubYear = idx;
           else if (c.includes('تصنيف') || c.includes('مذهب') || c.includes('category')) colMap.category = idx;
         });
 
@@ -1948,6 +1966,10 @@ function parseAndImportMarkdownBooks() {
       const authorCell = colMap.author >= 0 && colMap.author < cells.length ? cells[colMap.author] : (cells[2] || 'غير محدد');
       const deathCell = colMap.deathYear >= 0 && colMap.deathYear < cells.length ? cells[colMap.deathYear] : (cells[3] || 'غير مذكور');
       const volCell = colMap.volumes >= 0 && colMap.volumes < cells.length ? cells[colMap.volumes] : (cells[4] || '1');
+      const tahqeeqCell = colMap.tahqeeq >= 0 && colMap.tahqeeq < cells.length ? cells[colMap.tahqeeq] : 'تحقيق علمي معتمد';
+      const pubCell = colMap.publisher >= 0 && colMap.publisher < cells.length ? cells[colMap.publisher] : 'دار الكتب والتراث الإسلامي';
+      const edCell = colMap.edition >= 0 && colMap.edition < cells.length ? cells[colMap.edition] : 'طبعة معتمدة ومحققة';
+      const yrCell = colMap.pubYear >= 0 && colMap.pubYear < cells.length ? cells[colMap.pubYear] : '1420 هـ / 1999 م';
       const catCell = colMap.category >= 0 && colMap.category < cells.length ? cells[colMap.category] : currentCategory;
 
       if (titleCell.length > 1 && !titleCell.includes('عدد العناوين')) {
@@ -1957,6 +1979,10 @@ function parseAndImportMarkdownBooks() {
           author: authorCell || 'غير محدد',
           deathYear: deathCell || 'غير مذكور',
           volumes: volCell || '1',
+          tahqeeq: tahqeeqCell || 'تحقيق علمي معتمد',
+          publisher: pubCell || 'دار الكتب والتراث الإسلامي',
+          edition: edCell || 'طبعة معتمدة ومحققة',
+          pubYear: yrCell || '1420 هـ / 1999 م',
           category: catCell || currentCategory
         });
       }
@@ -2070,6 +2096,10 @@ function renderBooksAdmin() {
       (b.title && b.title.toLowerCase().includes(search)) ||
       (b.author && b.author.toLowerCase().includes(search)) ||
       (b.deathYear && String(b.deathYear).toLowerCase().includes(search)) ||
+      (b.tahqeeq && b.tahqeeq.toLowerCase().includes(search)) ||
+      (b.publisher && b.publisher.toLowerCase().includes(search)) ||
+      (b.edition && b.edition.toLowerCase().includes(search)) ||
+      (b.pubYear && b.pubYear.toLowerCase().includes(search)) ||
       (b.category && b.category.toLowerCase().includes(search)) ||
       (b.volumes && String(b.volumes).toLowerCase().includes(search));
 
@@ -2084,7 +2114,7 @@ function renderBooksAdmin() {
   if (!tbody) return;
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--tx-sub);">لا توجد كتب مطابقة للبحث حالياً. يمكنك إضافة كتب جديدة أو استيراد فهرس الماركداون.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; padding: 40px; color: var(--tx-sub);">لا توجد كتب مطابقة للبحث حالياً. يمكنك إضافة كتب جديدة أو استيراد فهرس الماركداون.</td></tr>`;
     return;
   }
 
@@ -2097,6 +2127,10 @@ function renderBooksAdmin() {
       <td style="color: var(--tx-sub);">${escapeHtml(b.author || 'غير محدد')}</td>
       <td style="text-align: center; font-weight: 600; color: #a5b4fc;">${escapeHtml(b.deathYear || 'غير مذكور')}</td>
       <td style="text-align: center;"><span class="badge" style="background: rgba(255,255,255,0.06); color: var(--tx-sub);">${escapeHtml(b.volumes || '1')}</span></td>
+      <td style="color: var(--tx-sub);">${escapeHtml(b.tahqeeq || 'تحقيق علمي معتمد')}</td>
+      <td style="color: var(--tx-sub);">${escapeHtml(b.publisher || 'دار الكتب والتراث الإسلامي')}</td>
+      <td style="text-align: center; color: var(--tx-sub);">${escapeHtml(b.edition || 'طبعة معتمدة ومحققة')}</td>
+      <td style="text-align: center; color: var(--tx-sub);">${escapeHtml(b.pubYear || '1420 هـ / 1999 م')}</td>
       <td style="text-align: center;"><span class="badge badge-active">${escapeHtml(b.category || 'عام')}</span></td>
       <td style="text-align: left;">
         <div style="display: flex; gap: 4px; justify-content: flex-end;">
@@ -2105,7 +2139,7 @@ function renderBooksAdmin() {
         </div>
       </td>
     </tr>
-  `).join('') + (filtered.length > 300 ? `<tr><td colspan="7" style="text-align: center; padding: 12px; color: var(--tx-sub); font-size: 12px;">تم عرض أول 300 كتاب من أصل ${filtered.length.toLocaleString()}. استخدم البحث لتضييق النتائج.</td></tr>` : '');
+  `).join('') + (filtered.length > 300 ? `<tr><td colspan="11" style="text-align: center; padding: 12px; color: var(--tx-sub); font-size: 12px;">تم عرض أول 300 كتاب من أصل ${filtered.length.toLocaleString()}. استخدم البحث لتضييق النتائج.</td></tr>` : '');
 }
 
 function openBookModal(id = null) {
@@ -2120,6 +2154,11 @@ function openBookModal(id = null) {
       document.getElementById('sbAuthor').value = book.author || '';
       document.getElementById('sbDeathYear').value = book.deathYear || '';
       document.getElementById('sbVolumes').value = book.volumes || '1';
+      if (document.getElementById('sbTahqeeq')) document.getElementById('sbTahqeeq').value = book.tahqeeq || '';
+      if (document.getElementById('sbPublisher')) document.getElementById('sbPublisher').value = book.publisher || '';
+      if (document.getElementById('sbEdition')) document.getElementById('sbEdition').value = book.edition || '';
+      if (document.getElementById('sbPubYear')) document.getElementById('sbPubYear').value = book.pubYear || '';
+      if (document.getElementById('sbCategory')) document.getElementById('sbCategory').value = book.category || 'الفقه الحنفي';
     }
   } else {
     document.getElementById('singleBookIdx').value = '-1';
@@ -2127,6 +2166,11 @@ function openBookModal(id = null) {
     document.getElementById('sbAuthor').value = '';
     document.getElementById('sbDeathYear').value = '';
     document.getElementById('sbVolumes').value = '1';
+    if (document.getElementById('sbTahqeeq')) document.getElementById('sbTahqeeq').value = '';
+    if (document.getElementById('sbPublisher')) document.getElementById('sbPublisher').value = '';
+    if (document.getElementById('sbEdition')) document.getElementById('sbEdition').value = '';
+    if (document.getElementById('sbPubYear')) document.getElementById('sbPubYear').value = '';
+    if (document.getElementById('sbCategory')) document.getElementById('sbCategory').value = 'الفقه الحنفي';
   }
   modal.classList.add('open');
 }
@@ -2150,7 +2194,11 @@ function applySingleBook() {
     author: document.getElementById('sbAuthor').value.trim() || 'غير محدد',
     deathYear: document.getElementById('sbDeathYear').value.trim() || 'غير مذكور',
     volumes: document.getElementById('sbVolumes').value.trim() || '1',
-    category: document.getElementById('mdBookCategory')?.value || 'الفقه الحنفي'
+    tahqeeq: document.getElementById('sbTahqeeq')?.value.trim() || 'تحقيق علمي معتمد',
+    publisher: document.getElementById('sbPublisher')?.value.trim() || 'دار الكتب والتراث الإسلامي',
+    edition: document.getElementById('sbEdition')?.value.trim() || 'طبعة معتمدة ومحققة',
+    pubYear: document.getElementById('sbPubYear')?.value.trim() || '1420 هـ / 1999 م',
+    category: document.getElementById('sbCategory')?.value || document.getElementById('mdBookCategory')?.value || 'الفقه الحنفي'
   };
 
   if (idVal !== '-1') {
