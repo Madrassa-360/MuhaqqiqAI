@@ -1412,6 +1412,11 @@ function loadData() {
   state.booksCatalog = jp(K.BOOKS) || [];
   state.pass = localStorage.getItem(K.PASS) || 'admin@hub2024';
 
+  // Ensure default books catalog loaded if empty
+  if (state.booksCatalog.length === 0) {
+    loadDefaultFiqhBooks();
+  }
+
   // Ensure default admin user exists if array empty
   if (state.users.length === 0) {
     state.users = getDefaultUsers();
@@ -1483,6 +1488,8 @@ function updateStats() {
 
   document.getElementById('tabCountCards').textContent = totalCards;
   document.getElementById('tabCountUsers').textContent = totalUsers;
+  const countBooksEl = document.getElementById('tabCountBooks');
+  if (countBooksEl) countBooksEl.textContent = (state.booksCatalog || []).length.toLocaleString();
 }
 
 // ── NAVIGATION TABS ──
@@ -1852,6 +1859,340 @@ function deleteUser(id) {
   renderUsers();
   updateStats();
   toast('User account deleted', 'error');
+}
+
+// ════════════ BOOKS CATALOG & MARKDOWN IMPORTER ════════════
+function cleanMd(str) {
+  if (!str) return '';
+  return str
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/`(.*?)`/g, '$1')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    .trim();
+}
+
+function parseAndImportMarkdownBooks() {
+  const input = document.getElementById('mdBooksInput').value;
+  const defaultCategory = document.getElementById('mdBookCategory')?.value || 'الفقه الحنفي';
+  const importMode = document.getElementById('mdImportMode')?.value || 'append';
+
+  if (!input || !input.trim()) {
+    toast('يرجى لصق نص الماركداون أولاً (Please paste Markdown text first)', 'error');
+    return;
+  }
+
+  const lines = input.split(/\r?\n/);
+  const parsedBooks = [];
+  let currentCategory = defaultCategory;
+  let colMap = { id: 0, title: 1, author: 2, deathYear: 3, volumes: 4, category: -1 };
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i].trim();
+    if (!rawLine) continue;
+
+    // Check for Section Headings (# Heading)
+    if (rawLine.startsWith('#')) {
+      const headingText = cleanMd(rawLine.replace(/^#+\s*/, ''));
+      if (headingText.includes('الحنفي')) currentCategory = 'الفقه الحنفي';
+      else if (headingText.includes('الشافعي')) currentCategory = 'الفقه الشافعي';
+      else if (headingText.includes('الحنبلي')) currentCategory = 'الفقه الحنبلي';
+      else if (headingText.includes('المالكي')) currentCategory = 'الفقه المالكي';
+      else if (headingText.includes('عام') || headingText.includes('بحوث')) currentCategory = 'عام';
+      continue;
+    }
+
+    // Check for Table Separator lines (|---|---|)
+    if (/^\|?\s*:?-+:?\s*\|/.test(rawLine)) {
+      continue;
+    }
+
+    // Check for Table Rows (| col1 | col2 | ...)
+    if (rawLine.includes('|')) {
+      if (rawLine.startsWith('*') || rawLine.startsWith('>') || rawLine.startsWith('(')) {
+        continue;
+      }
+
+      const cells = rawLine.split('|').map(c => cleanMd(c));
+      if (cells.length > 0 && cells[0] === '') cells.shift();
+      if (cells.length > 0 && cells[cells.length - 1] === '') cells.pop();
+
+      if (cells.length < 3) continue;
+
+      const firstCellLower = cells[0].toLowerCase();
+      const secondCellLower = (cells[1] || '').toLowerCase();
+
+      // Table Header Row Detection
+      if (firstCellLower.includes('#') || firstCellLower === 'م' || secondCellLower.includes('اسم الكتاب') || secondCellLower.includes('العنوان') || secondCellLower.includes('title')) {
+        colMap = { id: -1, title: -1, author: -1, deathYear: -1, volumes: -1, category: -1 };
+        cells.forEach((cell, idx) => {
+          const c = cell.toLowerCase();
+          if (c.includes('#') || c === 'م' || c.includes('مجموع')) colMap.id = idx;
+          else if (c.includes('كتاب') || c.includes('عنوان') || c.includes('title')) colMap.title = idx;
+          else if (c.includes('مؤلف') || c.includes('author')) colMap.author = idx;
+          else if (c.includes('وفاة') || c.includes('سنة') || c.includes('death')) colMap.deathYear = idx;
+          else if (c.includes('أجزاء') || c.includes('مجلد') || c.includes('حجم') || c.includes('volumes')) colMap.volumes = idx;
+          else if (c.includes('تصنيف') || c.includes('مذهب') || c.includes('category')) colMap.category = idx;
+        });
+
+        if (colMap.title === -1) colMap.title = cells.length >= 2 ? 1 : 0;
+        if (colMap.author === -1) colMap.author = 2;
+        if (colMap.deathYear === -1) colMap.deathYear = 3;
+        if (colMap.volumes === -1) colMap.volumes = 4;
+        continue;
+      }
+
+      const titleCell = colMap.title >= 0 && colMap.title < cells.length ? cells[colMap.title] : cells[1] || cells[0];
+      if (!titleCell || titleCell === 'اسم الكتاب' || titleCell === 'Title' || titleCell.includes('جدول')) continue;
+
+      const authorCell = colMap.author >= 0 && colMap.author < cells.length ? cells[colMap.author] : (cells[2] || 'غير محدد');
+      const deathCell = colMap.deathYear >= 0 && colMap.deathYear < cells.length ? cells[colMap.deathYear] : (cells[3] || 'غير مذكور');
+      const volCell = colMap.volumes >= 0 && colMap.volumes < cells.length ? cells[colMap.volumes] : (cells[4] || '1');
+      const catCell = colMap.category >= 0 && colMap.category < cells.length ? cells[colMap.category] : currentCategory;
+
+      if (titleCell.length > 1 && !titleCell.includes('عدد العناوين')) {
+        parsedBooks.push({
+          id: 'bk_' + uid(),
+          title: titleCell,
+          author: authorCell || 'غير محدد',
+          deathYear: deathCell || 'غير مذكور',
+          volumes: volCell || '1',
+          category: catCell || currentCategory
+        });
+      }
+      continue;
+    }
+
+    // List / Bullet Point Fallback Parsing (- Title by Author...)
+    const listMatch = rawLine.match(/^[-*•\d.]+\s*(.+)/);
+    if (listMatch) {
+      const content = cleanMd(listMatch[1]);
+      const parts = content.split(/[-–|]/).map(p => p.trim());
+      if (parts.length >= 1 && parts[0]) {
+        parsedBooks.push({
+          id: 'bk_' + uid(),
+          title: parts[0],
+          author: parts[1] || 'غير محدد',
+          deathYear: parts[2] || 'غير مذكور',
+          volumes: parts[3] || '1',
+          category: currentCategory
+        });
+      }
+    }
+  }
+
+  if (parsedBooks.length === 0) {
+    alert('لم يتم العثور على كتب صالحة في النص المدخل. يرجى التأكد من تنسيق الجدول أو القائمة.');
+    return;
+  }
+
+  // Handle Import Modes
+  if (importMode === 'clear_all') {
+    state.booksCatalog = parsedBooks;
+  } else if (importMode === 'replace') {
+    const importedCategories = new Set(parsedBooks.map(b => b.category));
+    state.booksCatalog = state.booksCatalog.filter(b => !importedCategories.has(b.category));
+    state.booksCatalog.push(...parsedBooks);
+  } else {
+    state.booksCatalog.push(...parsedBooks);
+  }
+
+  sp(K.BOOKS, state.booksCatalog);
+  renderBooksAdmin();
+  updateStats();
+  toast(`تم استيراد ${parsedBooks.length.toLocaleString()} كتاب بنجاح!`);
+}
+
+async function loadDefaultFiqhBooks() {
+  try {
+    const res = await fetch('./default_books.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        state.booksCatalog = data;
+        sp(K.BOOKS, state.booksCatalog);
+        renderBooksAdmin();
+        updateStats();
+        toast(`تم تحميل الفهرس المدمج (${data.length.toLocaleString()} كتاب) بنجاح!`);
+        return;
+      }
+    }
+  } catch (err) {
+    console.error('Error loading default books catalog:', err);
+  }
+  alert('تعذر تحميل الفهرس الافتراضي. يرجى التأكد من وجود ملف default_books.json.');
+}
+
+function renderBooksAdmin() {
+  if (!state.booksCatalog) state.booksCatalog = [];
+
+  const search = (document.getElementById('searchBooksAdmin')?.value || '').toLowerCase().trim();
+  const catFilter = document.getElementById('filterBookCatAdmin')?.value || 'ALL';
+
+  const filtered = state.booksCatalog.filter(b => {
+    const matchSearch = !search ||
+      (b.title && b.title.toLowerCase().includes(search)) ||
+      (b.author && b.author.toLowerCase().includes(search)) ||
+      (b.deathYear && String(b.deathYear).toLowerCase().includes(search)) ||
+      (b.category && b.category.toLowerCase().includes(search)) ||
+      (b.volumes && String(b.volumes).toLowerCase().includes(search));
+
+    const matchCat = catFilter === 'ALL' || b.category === catFilter;
+    return matchSearch && matchCat;
+  });
+
+  const tabCountBadge = document.getElementById('tabCountBooks');
+  if (tabCountBadge) tabCountBadge.textContent = state.booksCatalog.length.toLocaleString();
+
+  const tbody = document.getElementById('booksTableBodyAdmin');
+  if (!tbody) return;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--tx-sub);">لا توجد كتب مطابقة للبحث حالياً. يمكنك إضافة كتب جديدة أو استيراد فهرس الماركداون.</td></tr>`;
+    return;
+  }
+
+  const displayList = filtered.slice(0, 300);
+
+  tbody.innerHTML = displayList.map((b, i) => `
+    <tr>
+      <td style="text-align: center; color: var(--tx-sub); font-weight: 600;">${i + 1}</td>
+      <td style="font-weight: 700; color: #fff; font-size: 14px;">${escapeHtml(b.title || '')}</td>
+      <td style="color: var(--tx-sub);">${escapeHtml(b.author || 'غير محدد')}</td>
+      <td style="text-align: center; font-weight: 600; color: #a5b4fc;">${escapeHtml(b.deathYear || 'غير مذكور')}</td>
+      <td style="text-align: center;"><span class="badge" style="background: rgba(255,255,255,0.06); color: var(--tx-sub);">${escapeHtml(b.volumes || '1')}</span></td>
+      <td style="text-align: center;"><span class="badge badge-active">${escapeHtml(b.category || 'عام')}</span></td>
+      <td style="text-align: left;">
+        <div style="display: flex; gap: 4px; justify-content: flex-end;">
+          <button class="btn btn-secondary btn-xs" onclick="openBookModal('${b.id || i}')">✏️ Edit</button>
+          <button class="btn btn-rose btn-xs" onclick="deleteBookAdmin('${b.id || i}')">🗑️ Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('') + (filtered.length > 300 ? `<tr><td colspan="7" style="text-align: center; padding: 12px; color: var(--tx-sub); font-size: 12px;">تم عرض أول 300 كتاب من أصل ${filtered.length.toLocaleString()}. استخدم البحث لتضييق النتائج.</td></tr>` : '');
+}
+
+function openBookModal(id = null) {
+  const modal = document.getElementById('modalSingleBook');
+  if (!modal) return;
+
+  if (id !== null) {
+    const book = state.booksCatalog.find(b => b.id === id) || state.booksCatalog[id];
+    if (book) {
+      document.getElementById('singleBookIdx').value = book.id || id;
+      document.getElementById('sbTitle').value = book.title || '';
+      document.getElementById('sbAuthor').value = book.author || '';
+      document.getElementById('sbDeathYear').value = book.deathYear || '';
+      document.getElementById('sbVolumes').value = book.volumes || '1';
+    }
+  } else {
+    document.getElementById('singleBookIdx').value = '-1';
+    document.getElementById('sbTitle').value = '';
+    document.getElementById('sbAuthor').value = '';
+    document.getElementById('sbDeathYear').value = '';
+    document.getElementById('sbVolumes').value = '1';
+  }
+  modal.classList.add('open');
+}
+
+function closeSingleBookModal() {
+  const modal = document.getElementById('modalSingleBook');
+  if (modal) modal.classList.remove('open');
+}
+
+function applySingleBook() {
+  const idVal = document.getElementById('singleBookIdx').value;
+  const title = document.getElementById('sbTitle').value.trim();
+  if (!title) {
+    alert('يرجى إدخال اسم الكتاب (Book Title is required).');
+    return;
+  }
+
+  const bookData = {
+    id: idVal !== '-1' ? idVal : 'bk_' + uid(),
+    title: title,
+    author: document.getElementById('sbAuthor').value.trim() || 'غير محدد',
+    deathYear: document.getElementById('sbDeathYear').value.trim() || 'غير مذكور',
+    volumes: document.getElementById('sbVolumes').value.trim() || '1',
+    category: document.getElementById('mdBookCategory')?.value || 'الفقه الحنفي'
+  };
+
+  if (idVal !== '-1') {
+    const idx = state.booksCatalog.findIndex(b => b.id === idVal || b === state.booksCatalog[idVal]);
+    if (idx !== -1) state.booksCatalog[idx] = { ...state.booksCatalog[idx], ...bookData };
+    else state.booksCatalog.push(bookData);
+  } else {
+    state.booksCatalog.unshift(bookData);
+  }
+
+  sp(K.BOOKS, state.booksCatalog);
+  closeSingleBookModal();
+  renderBooksAdmin();
+  updateStats();
+  toast('تم حفظ بيانات الكتاب بنجاح!');
+}
+
+function deleteBookAdmin(id) {
+  const idx = state.booksCatalog.findIndex(b => b.id === id || b === state.booksCatalog[id]);
+  if (idx === -1) return;
+  if (!confirm(`هل أنت متأكد من حذف كتاب "${state.booksCatalog[idx].title}"؟`)) return;
+
+  state.booksCatalog.splice(idx, 1);
+  sp(K.BOOKS, state.booksCatalog);
+  renderBooksAdmin();
+  updateStats();
+  toast('تم حذف الكتاب', 'error');
+}
+
+function clearAllBooks() {
+  if (!confirm('⚠️ هل أنت متأكد تماماً من حذف جميع الكتب من الفهرس؟')) return;
+  state.booksCatalog = [];
+  sp(K.BOOKS, state.booksCatalog);
+  renderBooksAdmin();
+  updateStats();
+  toast('تم مسح جميع الكتب من الفهرس', 'error');
+}
+
+function exportBooksMarkdown() {
+  if (!state.booksCatalog || state.booksCatalog.length === 0) {
+    toast('لا توجد كتب للتصدير', 'error');
+    return;
+  }
+  let md = '# 📚 فهرس كتب الفقه المذهبي\n\n';
+  md += '| # | اسم الكتاب | اسم المؤلف | سنة الوفاة | عدد الأجزاء | التصنيف |\n';
+  md += '|---|---|---|---|---|---|\n';
+  state.booksCatalog.forEach((b, i) => {
+    md += `| ${i + 1} | **${b.title || ''}** | ${b.author || ''} | ${b.deathYear || ''} | ${b.volumes || ''} | ${b.category || ''} |\n`;
+  });
+
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fiqh_books_catalog_${new Date().toISOString().slice(0, 10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('تم تصدير ملف Markdown بنجاح!');
+}
+
+function exportBooksCSV() {
+  if (!state.booksCatalog || state.booksCatalog.length === 0) {
+    toast('لا توجد كتب للتصدير', 'error');
+    return;
+  }
+  let csv = '\uFEFFالتصنيف / المذهب,اسم الكتاب,اسم المؤلف,سنة وفاة المؤلف,عدد الأجزاء\n';
+  state.booksCatalog.forEach(b => {
+    csv += `"${b.category || ''}","${b.title || ''}","${b.author || ''}","${b.deathYear || ''}","${b.volumes || ''}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fiqh_books_catalog_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('تم تصدير ملف CSV بنجاح!');
 }
 
 // ════════════ MASTER PASSWORD LOGIC ════════════
