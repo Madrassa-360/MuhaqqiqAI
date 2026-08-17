@@ -1049,6 +1049,16 @@ body {
             📱 Export app_config.json for Mobile Sync
           </button>
         </div>
+
+        <div style="background: rgba(220, 38, 38, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: var(--radius-sm); padding: 16px; text-align: center; grid-column: 1 / -1; margin-top: 10px;">
+          <h3 style="font-size: 15px; margin-bottom: 8px; color: #fca5a5;">⚡ Global Force App & Database Reset</h3>
+          <p style="font-size: 12px; color: var(--tx-sub); margin-bottom: 14px;">
+            Purges all local caches & databases across all devices and forces an immediate live update of <code>app_config.json</code>.
+          </p>
+          <button class="btn btn-danger" onclick="forceSystemAppUpdate()" style="width: 100%; background: #dc2626; color: #fff; font-weight: 700; border: none; padding: 10px 16px; border-radius: var(--radius-xs); cursor: pointer;">
+            🔄 Force System-Wide App Update & Clear All Caches / DB
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -1385,6 +1395,17 @@ body {
 
 <!-- ════════════ JAVASCRIPT LOGIC ════════════ -->
 <script>
+// Application Configuration & Best Practices Constants
+const CONFIG = {
+  WHATSAPP_NUMBER: '923287819000',
+  WHATSAPP_URL: 'https://wa.me/923287819000',
+  EMAIL: 'muhaqqiqcreates@gmail.com',
+  DEFAULT_ADMIN_PASS: 'Bismillah',
+  DEFAULT_ADMIN_EMAIL: 'muhaqqiqcreates@gmail.com',
+  NOTEBOOKLM_URL_TEMPLATE: 'https://notebooklm.google.com/notebook/',
+  SW_VERSION: '20260815_v500'
+};
+
 // Local Storage Keys
 const K = {
   NB: 'at_nb',
@@ -1403,7 +1424,7 @@ let state = {
   users: [],
   mainCats: [],
   booksCatalog: [],
-  pass: 'admin@hub2024',
+  pass: CONFIG.DEFAULT_ADMIN_PASS,
   sett: {}
 };
 
@@ -1445,7 +1466,7 @@ function getDefaultUsers() {
       id: 'usr_admin',
       username: 'admin',
       fullName: 'Super Administrator',
-      email: 'admin@al-turath.org',
+      email: CONFIG.DEFAULT_ADMIN_EMAIL,
       password: localStorage.getItem(K.PASS) || 'Bismillah',
       role: 'Admin',
       status: 'Active',
@@ -1856,30 +1877,7 @@ function saveCardBooks() {
 
 
 
-function getDefaultUsers() {
-  return [
-    {
-      id: 'usr_admin',
-      username: 'admin',
-      fullName: 'Super Administrator',
-      email: 'admin@al-turath.org',
-      password: localStorage.getItem(K.PASS) || 'Bismillah',
-      role: 'Admin',
-      status: 'Active',
-      createdAt: new Date().toISOString().slice(0, 10)
-    },
-    {
-      id: 'usr_researcher1',
-      username: 'researcher',
-      fullName: 'Senior Islamic Researcher',
-      email: 'researcher@al-turath.org',
-      password: 'researcherpass123',
-      role: 'Researcher',
-      status: 'Active',
-      createdAt: new Date().toISOString().slice(0, 10)
-    }
-  ];
-}
+
 
 function updateStats() {
   const totalCards = state.cards.length;
@@ -2828,10 +2826,16 @@ function exportBackupJSON() {
 }
 
 function exportAppConfigJSON() {
+  const resetVer = state.sett && state.sett.forceResetVersion ? state.sett.forceResetVersion : Date.now();
   const data = {
     app: 'Muhaqqiq AI',
     version: '1.0.0',
     updatedAt: new Date().toISOString(),
+    forceResetVersion: resetVer,
+    settings: {
+      ...(state.sett || {}),
+      forceResetVersion: resetVer
+    },
     cards: state.cards,
     users: state.users,
     mainCats: state.mainCats
@@ -2847,6 +2851,47 @@ function exportAppConfigJSON() {
   a.click();
   URL.revokeObjectURL(url);
   toast('app_config.json generated & downloaded for mobile sync!');
+}
+
+async function forceSystemAppUpdate() {
+  const confirmMsg = '⚠️ FORCE SYSTEM UPDATE & CLEAR CACHES / DATABASES?\n\n' +
+    'This action will:\n' +
+    '1. Set a global reset signal for all visiting mobile/desktop devices.\n' +
+    '2. Purge Service Worker and CacheStorage caches.\n' +
+    '3. Clear local storage database caches.\n' +
+    '4. Download a fresh app_config.json file for GitHub Pages deployment.\n\n' +
+    'Do you wish to proceed?';
+
+  if (!confirm(confirmMsg)) return;
+
+  const resetTimestamp = Date.now();
+  if (!state.sett) state.sett = {};
+  state.sett.forceResetVersion = resetTimestamp;
+  sp(K.SETT, state.sett);
+  localStorage.setItem('at_applied_force_reset', resetTimestamp.toString());
+
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage('CLEAR_ALL_CACHES');
+  }
+
+  if ('caches' in window) {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    } catch (e) { console.error('Cache clear error:', e); }
+  }
+
+  [K.NB, K.MAINCATS, K.CATS, K.USERS, K.BOOKS, 'at_catmap', 'at_subcatar', 'at_last_modified'].forEach(k => {
+    localStorage.removeItem(k);
+  });
+
+  exportAppConfigJSON();
+
+  toast('✅ Force Update initiated! app_config.json downloaded. Replace in repo & commit to push update to all devices.', 'success');
+
+  setTimeout(() => {
+    window.location.reload(true);
+  }, 1800);
 }
 
 function importBackupJSON(e) {

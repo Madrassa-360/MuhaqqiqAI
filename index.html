@@ -20,8 +20,11 @@
 <!-- PWA: manifest + icons -->
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png"><style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @font-face {
   font-family: 'JameelNastaleeq';
@@ -35,15 +38,6 @@
   font-family: 'UthmaniTaha';
   src: local('KFGQPC Uthman Taha Naskh'),
        url('./KFGQPC_UTHMAN_TAHA_NASKH_REGULAR.TTF') format('truetype');
-  font-weight: normal; font-style: normal; font-display: swap;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
-/* Jameel Noori Nastaleeq */
-@font-face {
-  font-family: 'JameelNastaleeq';
-  src: url('https://db.onlinewebfonts.com/t/ea7d19e9d50f1e8bfecf6e911c2ddad7.woff2') format('woff2'),
-       url('https://db.onlinewebfonts.com/t/ea7d19e9d50f1e8bfecf6e911c2ddad7.woff') format('woff');
   font-weight: normal; font-style: normal; font-display: swap;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -2955,8 +2949,8 @@ html, body {
         </div>
         <div>
           <div class="fc-h">Connect</div>
-          <a class="fc-l" href="https://wa.me/923287819000" target="_blank">WhatsApp</a>
-          <a class="fc-l" href="mailto:muhaqqiqcreates@gmail.com">Email</a>
+          <a class="fc-l" data-contact="whatsapp" href="https://wa.me/923287819000" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="fc-l" data-contact="email" href="mailto:muhaqqiqcreates@gmail.com">Email</a>
           <span class="fc-l" onclick="shareApp('copy')">Share App</span>
         </div>
       </div>
@@ -3049,10 +3043,10 @@ html, body {
           <div class="dev-inst" style="margin-top:8px">📍 Okara, Punjab, Pakistan</div>
           
           <div class="dev-contact-btns" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-            <a href="https://wa.me/923287819000" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+            <a data-contact="whatsapp" href="https://wa.me/923287819000" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
               📱 WhatsApp: +92 328 7819000
             </a>
-            <a href="mailto:muhaqqiqcreates@gmail.com" class="btn btn-ghost btn-sm">
+            <a data-contact="email" href="mailto:muhaqqiqcreates@gmail.com" class="btn btn-ghost btn-sm">
               📧 muhaqqiqcreates@gmail.com
             </a>
           </div>
@@ -3203,7 +3197,7 @@ html, body {
           <div class="c-card-val">+92 328 7819000</div>
           <div class="c-card-btns">
             <button class="btn btn-ghost btn-sm" title="Copy Number" onclick="copyText('+923287819000', 'WhatsApp Number')">📋</button>
-            <a class="btn btn-primary btn-sm" href="https://wa.me/923287819000?text=Assalamu%20Alaikum%20Muhaqqiq%20AI%20Team," target="_blank" rel="noopener">Chat ↗</a>
+            <a class="btn btn-primary btn-sm" data-contact="whatsapp" data-whatsapp-msg="Assalamu Alaikum Muhaqqiq AI Team," href="https://wa.me/923287819000?text=Assalamu%20Alaikum%20Muhaqqiq%20AI%20Team," target="_blank" rel="noopener">Chat ↗</a>
           </div>
         </div>
       </div>
@@ -3341,8 +3335,8 @@ html, body {
           </div>
 
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <a class="btn btn-ghost btn-sm" href="https://wa.me/923287819000" target="_blank" rel="noopener">📱 WhatsApp</a>
-            <a class="btn btn-ghost btn-sm" href="mailto:muhaqqiqcreates@gmail.com">📧 Email</a>
+            <a class="btn btn-ghost btn-sm" data-contact="whatsapp" href="https://wa.me/923287819000" target="_blank" rel="noopener">📱 WhatsApp</a>
+            <a class="btn btn-ghost btn-sm" data-contact="email" href="mailto:muhaqqiqcreates@gmail.com">📧 Email</a>
           </div>
         </div>
 
@@ -3880,6 +3874,34 @@ html, body {
 </div>
 
 <script>
+const CONFIG={
+  WHATSAPP_NUMBER:'923287819000',
+  WHATSAPP_URL:'https://wa.me/923287819000',
+  EMAIL:'muhaqqiqcreates@gmail.com',
+  DEFAULT_ADMIN_PASS:'admin@hub2024',
+  DEFAULT_ADMIN_EMAIL:'admin@al-turath.org',
+  QR_API_BASE:'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=',
+  SW_VERSION:'20260815_v500'
+};
+function getWhatsappUrl(customMsg){
+  const num=(S&&S.sett&&S.sett.whatsappNumber)||CONFIG.WHATSAPP_NUMBER;
+  const base=`https://wa.me/${num}`;
+  return customMsg ? `${base}?text=${encodeURIComponent(customMsg)}` : base;
+}
+function getEmailUrl(){
+  const email=(S&&S.sett&&S.sett.contactEmail)||CONFIG.EMAIL;
+  return `mailto:${email}`;
+}
+function bindContactLinks(){
+  document.querySelectorAll('[data-contact="whatsapp"]').forEach(el=>{
+    const msg=el.getAttribute('data-whatsapp-msg');
+    el.href=getWhatsappUrl(msg);
+  });
+  document.querySelectorAll('[data-contact="email"]').forEach(el=>{
+    el.href=getEmailUrl();
+  });
+}
+document.addEventListener('DOMContentLoaded', bindContactLinks);
 const K={NB:'at_nb',CATS:'at_cats',MAINCATS:'at_mcats',CATMAP:'at_catmap',SUBCATAR:'at_subcatar',USERS:'at_users',CU:'at_cu',FAVS:'at_favs',NOTIF:'at_notif',PASS:'at_pass',SETT:'at_sett'};
 const DEF_CATS=[];
 const THEMES=[
@@ -4064,6 +4086,30 @@ function syncRemoteConfig(force){
     .then(data=>{
       if(!data)return;
 
+      // Global Force Reset & Cache Purge Check
+      const remoteResetVer = data.forceResetVersion || (data.settings && data.settings.forceResetVersion) || 0;
+      const localAppliedReset = parseInt(localStorage.getItem('at_applied_force_reset') || '0');
+
+      if (remoteResetVer && remoteResetVer > localAppliedReset) {
+        console.log('[Force Update] Global reset signal detected! Clearing all caches and databases...');
+        localStorage.setItem('at_applied_force_reset', remoteResetVer.toString());
+
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage('CLEAR_ALL_CACHES');
+        }
+        if ('caches' in window) {
+          caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+        }
+
+        [K.NB, K.MAINCATS, K.CATS, K.USERS, 'at_books_catalog', K.CATMAP, K.SUBCATAR, 'at_last_modified'].forEach(k => {
+          localStorage.removeItem(k);
+        });
+
+        if (typeof toast === 'function') toast('⚡ Live System update detected - clearing caches & database...');
+        setTimeout(() => window.location.reload(true), 1200);
+        return;
+      }
+
       const localMod = parseInt(localStorage.getItem('at_last_modified') || '0');
       const remoteMod = data.updatedAt ? Date.parse(data.updatedAt) : 0;
 
@@ -4118,16 +4164,31 @@ function syncRemoteConfig(force){
     .catch(()=>{});
 }
 
-window.forceUpdateApp=function(){
-  if(typeof toast==='function')toast('🔄 Purging device cache and fetching live server data…');
-  if('caches'in window){
-    caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
+window.purgeAppCachesAndReload = async function() {
+  if(typeof toast==='function')toast('🔄 Purging device cache and database…');
+  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage('CLEAR_ALL_CACHES');
   }
-  if('serviceWorker'in navigator){
-    navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
+  if('caches' in window){
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+    } catch(e) {}
   }
-  syncRemoteConfig(true);
-  setTimeout(()=>{location.reload(true);},900);
+  if('serviceWorker' in navigator){
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (let r of regs) await r.unregister();
+    } catch(e) {}
+  }
+  [K.NB, K.MAINCATS, K.CATS, K.USERS, 'at_books_catalog', K.CATMAP, K.SUBCATAR, 'at_last_modified'].forEach(k => {
+    localStorage.removeItem(k);
+  });
+  setTimeout(()=>{ window.location.reload(true); }, 1000);
+};
+
+window.forceUpdateApp = function() {
+  window.purgeAppCachesAndReload();
 };
 
 /* ── INLINE BOOK EDIT ── */
@@ -6072,7 +6133,7 @@ function toggleFaq(el){
 function showQrModal(){
   const qrImg=document.getElementById('qrImg');
   if(qrImg){
-    qrImg.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(window.location.href);
+    qrImg.src=(window.CONFIG?CONFIG.QR_API_BASE:'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=')+encodeURIComponent(window.location.href);
   }
   document.getElementById('qrModal').classList.add('open');
 }
@@ -7785,7 +7846,7 @@ window.doAdminLogin = function() {
   const passIn = document.getElementById('aPass');
   const alertEl = document.getElementById('aLoginAlert');
   const pass = (passIn ? passIn.value : '').trim();
-  const masterPass = localStorage.getItem(K.PASS) || 'admin@hub2024';
+  const masterPass = localStorage.getItem(K.PASS) || CONFIG.DEFAULT_ADMIN_PASS;
 
   if (!pass) {
     if (alertEl) { alertEl.textContent = '⚠️ Please enter the Admin Password.'; alertEl.style.display = 'block'; }

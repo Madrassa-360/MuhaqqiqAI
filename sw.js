@@ -6,7 +6,7 @@
    - skipWaiting() + clients.claim() for instant update on all devices
    ════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'muhaqqiq-ai-cache-v9.0-fluid-scroll';
+const CACHE_NAME = 'muhaqqiq-ai-cache-v20260815_v500';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -79,4 +79,9 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data === 'CLEAR_ALL_CACHES') {
+    caches.keys()
+      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      .then(() => self.clients.claim());
+  }
 });
